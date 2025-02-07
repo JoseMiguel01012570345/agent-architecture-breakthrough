@@ -1,0 +1,137 @@
+// Initialize Agents
+InputAgents = InitializeInputAgents()
+OutputAgents = InitializeOutputAgents()
+Coordinator = InitializeCoordinatorAgent()
+Corrector = InitializeCorrectorAgent()
+MaxIterations = 100  // Upper bound for iterations
+ConvergenceThreshold = 0.01  // ε value for convergence
+
+// Main Process
+procedure MainProcess(Dataset):
+    for each (X, Y) in Dataset:  // Each generation
+        InitializeInputAgentsWithX(X)
+        iteration = 1
+        converged = False
+        
+        stach_edges = []
+        while iteration ≤ MaxIterations and not converged:
+            // Step 1: Coordinator determines arcs
+            adjacency_matrix = Coordinator.generate_arcs(X)
+            
+            // Keep record of the data
+            stack_edges.append( (adjacency_matrix , agent.inputs ) )
+
+            // Step 2: Check termination condition
+            if no_arcs_exist(adjacency_matrix):
+                break
+            
+            // Step 3: Agent computation phase
+            for each agent in InputAgents + OutputAgents:
+                agent.preconditions = calculate_preconditions(agent, adjacency_matrix)
+                if check_activation_conditions(agent.preconditions):
+                    agent.output = agent.FoG(agent.preconditions, agent.inputs)
+            
+
+            // Step 4: Check convergence
+            delta = calculate_max_difference(target_outputs, current_outputs)
+            if delta < ConvergenceThreshold:
+                converged = True
+                break
+
+            agent.inputs = agent.output
+            iteration += 1
+        
+        // Final output collection
+        results = CollectOutputs(OutputAgents)
+        
+        if not converged:
+            // Step 5: Correction phase
+            for each iteration:
+            
+                error = calculate_error(OutputAgents.values, Y)
+                arc_adjustments = Corrector.adjust_arcs(
+                    error, 
+                    adjacency_matrix,
+                    OutputAgents,
+                    InputAgents
+                )
+            
+            // reset states
+            agent.clean_outputs()
+            agent.clean_inputs()
+
+            start = 0
+            while start <= iteration:
+                // Step 1: Coordinator determines arcs
+                adjacency_matrix = stach_edges[start].adjacency_matrix
+                
+                // Step 3: Agent computation phase
+                for each agent in InputAgents + OutputAgents:
+                    agent.preconditions = calculate_preconditions(agent, adjacency_matrix)
+                    if check_activation_conditions(agent.preconditions):
+                        agent.output = agent.FoG(agent.preconditions, agent.inputs)
+                
+                agent.inputs = agent.output
+                start += 1
+                
+            // Step 6: Update coordinator with new arcs
+            Coordinator.update(arc_adjustments)
+        
+        return results
+
+// Helper Functions
+function calculate_preconditions(agent, adjacency_matrix):
+    preconditions = []
+    for connected_agent in get_connected_agents(agent, adjacency_matrix):
+        prev_val = connected_agent.previous_output
+        curr_val = connected_agent.current_output
+        max_val = max(abs(prev_val), abs(curr_val)) + 1e-6  // Prevent division by zero
+        precondition = abs(prev_val - curr_val) / max_val
+        preconditions.append(precondition)
+    return preconditions
+
+function check_activation_conditions(preconditions):
+    // Check if all preconditions meet activation threshold
+    return all(p ≥ ActivationThreshold for p in preconditions)
+
+procedure CollectOutputs(OutputAgents):
+    return [agent.output for agent in OutputAgents]
+
+// Corrector Agent Operations
+procedure Corrector.adjust_arcs(error, adjacency_matrix, OutputAgents, InputAgents):
+    adjustments = []
+    
+    for output_agent in OutputAgents:
+        target = output_agent.F⁻¹(Y)  // Inverse function
+        current = output_agent.G(output_agent.inputs)
+        residual = |target - current|
+        
+        // Case 1: Sequential connection search
+        connected_agents = sort_by_relevance(InputAgents)
+        cumulative_effect = 0
+        
+        for agent in connected_agents:
+            cumulative_effect += agent.output
+            adjustments.append((output_agent, agent))
+            if cumulative_effect ≥ residual:
+                // Case 2: Interval arithmetic adjustment
+                
+                if cumulative_effect == residual:
+                    break
+                
+
+                remaining = residual - cumulative_effect
+                adjusted_weight = remaining / last_agent.output
+                update_connection_weight(last_agent, output_agent, adjusted_weight)
+                break
+        
+    return generate_new_adjacency_matrix(adjustments)
+
+// Coordinator Agent Operations
+procedure Coordinator.generate_arcs(X):
+    return ML_model.predict(X)
+    
+procedure Coordinator.update(adjustments):
+    // Update model with new training data
+    training_data.add(adjustments)
+    retrain_model()
