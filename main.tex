@@ -62,6 +62,17 @@ Universidad de La Habana
 
 \newpage
 
+\section*{ \textbf{ Agradecimientos } }
+
+
+
+\newpage
+
+\section*{ \textbf{ Opinión de los tutores } }
+
+
+\newpage
+
 \begin{center}
 \section*{ \textbf{ Resumen } }
 \end{center}
@@ -498,13 +509,19 @@ Crea una lista de trabajo $WL$ con todos los arcos $(x, y)$ en el grafo de restr
         $G(P,X)=p_0x_0 + p_1x_1 +...+p_nx_n$ siendo $n$ el número de agentes, luego envía su resultado al puerto de salida para que otro agente la escuche. Estos agentes no son los responsables al menos de forma directa de la salida de la red.\\
 
         Agentes de salida: Existe un agente de salida por cada parámetro de salida estos agentes son los responsables de escuchar de los agentes de entrada y devolver la salida.
-        Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoG$ que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que este la respuesta.
+        Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoG$ 
+        que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que este la respuesta. Estos agentes se determinan al inicio del entrenamiento.
 
         Un punto importante a destacar es que la función de $F$ de ambos agentes, es su función característica, es decir, una función que solo implementan ellos y además se exige que sea inversible.
 
         \subsection*{El agente corrector y el agente coordinador}
 
-        Agente coordinador: Este agente se encarga de resolver en cada $k$-iteración las arcos entre agentes. Este agente recibe como entrada, la entrada a la red y devuelve los arcos entre agentes. Para la iteración $k$ se definen los agentes de salida, el número de estos agentes coincide con el número de parámetro de salida. Si este agente no define arcos entre agentes, el resultado de la red está en el valor de los agentes de salida definidos. Este agente se entrena a partir de los errores cometidos por sus arcos estimadas. Este agente puede ser un regresor que sea capaz de recibir una entrada $m$ de parámetros y devolver un vector $V$ donde $|V|=(|$ Agentes de Entrada $| + |$ Agente de salida $|)(|$ Agentes de Entrada $| + |$ Agente de salida $| - 1)$ y además $v_i \in [0,1]$. El vector $V$ codifica la matriz $W$ de agentes donde la componente $w_{ij}$ refleja el peso de los arco entre el agente $i$ y el agente $j$, este valor es una medida de cuando influye en el agente $i$ las decisiones del agente $j$.\\
+        Agente coordinador: Este agente se encarga de resolver en cada $k$-iteración las arcos entre agentes. Este agente recibe como entrada, la entrada a la red 
+        y devuelve los arcos entre agentes. Si este agente no define arcos entre agentes, el resultado de la red está en el valor de los agentes de salida definidos. Este agente se entrena 
+        a partir de los errores cometidos por sus arcos estimadas. Este agente puede ser un regresor que sea capaz de recibir una entrada $m$ de parámetros y devolver
+         un vector $V$ donde $|V|=(|$ Agentes de Entrada $| + |$ Agente de salida $|)(|$ Agentes de Entrada $| + |$ Agente de salida $| - 1)$ y además $v_i \in [0,1]$.
+          El vector $V$ codifica la matriz $W$ de agentes donde la componente $w_{ij}$ refleja el peso de los arco entre el agente $i$ y el agente $j$, este valor es una 
+          medida de cuando influye en el agente $i$ las decisiones del agente $j$.\\
 
         \textbf{Definición de generación}: Dada una lista $L$ de pares $(x,y)$ se define como generación al $g$-ésimo par $(x,y)$. \\
 
@@ -766,14 +783,40 @@ Crea una lista de trabajo $WL$ con todos los arcos $(x, y)$ en el grafo de restr
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- \section*{Convergencia}
+
+ \section*{Análisis de convergencia}
  
- 
- \section*{Complejidad}
+    El analisis de convergencia esta pricipalemnte relacionado a los agentes corrector y coordinador, puestos que estos agentes son los que guian a los agentes 
+    de entrada y salida. El agente coordinador siempre encuentra una solución correcta dada la entrada y salida de la red de las infinitas posibles, por tanto se 
+    puede decir que este agente converge a la ¨solución correcta¨. En los siguiente se asume que el agente coordinador converge al mínimo global: \\
+
+    El problema de encontrar $F:X \rightarrow Y$ se ha reducido $\underset{G}{\min}(|F(X)-Y|) \leq \epsilon$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
+    este el agente corrector converge a $G$  entonces la red converge a $Y$ dado $X$.
+
+
+ \section*{Análisis de complejidad}
+
+    A continuación se analisa la complejidad de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
+
+    Los agentes de entrada y salida tienen complejidad $N \geq O(FoG) $ siendo $N$ el número de estos agentes el agente en cuestión, esta consideración 
+    sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que de una entrada y devuelva una salida, la 
+    razón principal de la cota inferior es porqque $G$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
+    de entrada y salida, es decir $O(N)$. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
+    El algoritmo en su totalidad tiene complejidad: 
+    \begin{center}
+        
+        \begin{equation*}
+                
+                |D|(C( \max(O(F o G )) + O(f) + O(N)) + O(N)) \\
+                = O(|D|C( \max(O(F o G )) + O(f) + O(N)))\\
+
+        \end{equation*}
+
+    \end{center}
+
+Siendo $|D|$ el núumero de pares en el dataset y $C$ la cota máxima de iteración entre agentes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
- 
 
 \newpage
 
@@ -800,7 +843,7 @@ Crea una lista de trabajo $WL$ con todos los arcos $(x, y)$ en el grafo de restr
     \section*{ \Huge Conclusiones }
     \label{sec:19}
     \begin{itemize}
-        \item  Reflexiones sobre los hallazgos, limitaciones del estudio y posibles mejoras
+        \item  Reflexiones sobre los hallazgos y limitaciones del estudio
         \item  Implicaciones prácticas para la epidemiología computacional y el modelado matemático
        \item  Resumen de los principales aportes de la tesis
         \item  Respuestas a las preguntas planteadas al inicio sobre efectividad y convergencia.

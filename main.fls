@@ -310,6 +310,9 @@ INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlaye
 INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarypositioning.code.tex
 INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT .\main.aux
+INPUT .\main.aux
+INPUT main.aux
 OUTPUT main.aux
 INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Users\jhosef\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
