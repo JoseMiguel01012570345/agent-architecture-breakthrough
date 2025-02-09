@@ -1,0 +1,240 @@
+\chapter{Desarrollo del Algoritmo}\label{chapter:implementation}
+
+\label{sec:16}
+\subsection*{ \Large Desarrollo del Algoritmo }
+
+ En esta sección se desarrollará el pseudocódigo del algoritmo y se analizará la convergencia y complejidad del mismo. En el siguiente gráfico se muestra el desarrollo.
+
+ %-------------------------------
+ % Main Process Algorithm
+ %-------------------------------
+ \begin{algorithm}[H]
+ \caption{Main Process}
+ \KwData{Dataset}
+ \KwResult{results}
+ 
+ \textbf{// Initialize Agents}\\
+ agents.input $\leftarrow$ InitializeInputAgents()\;
+ agents.output $\leftarrow$ InitializeOutputAgents()\;
+ Coordinator $\leftarrow$ InitializeCoordinatorAgent()\;
+ Corrector $\leftarrow$ InitializeCorrectorAgent()\;
+ MaxIterations $\leftarrow$ K\;
+ ConvergenceThreshold $\leftarrow$ 0.01\;
+ 
+ \ForEach{$(X,Y)$ in Dataset}{
+     InitializeInputAgentsWithX$(X)$\;
+     iteration $\leftarrow$ 1\;
+     converged $\leftarrow$ False\;
+     stack\_edges $\leftarrow$ [ ]\;
+     
+     \While{iteration $\le$ MaxIterations \textbf{and} not converged}{
+         \textbf{// Step 1: Coordinator determines arcs}\\
+         adjacency\_matrix $\leftarrow$ Coordinator.generate\_arcs$(X)$\;
+         stack\_edges.append$\bigl((\text{adjacency\_matrix},\, \text{agents.input}, \text{agents.output})\bigr)$\;
+         
+         \textbf{// Step 2: Check termination condition}\\
+         \If{no\_arcs\_exist(adjacency\_matrix)}{
+             converged $\leftarrow$ True\;
+             \textbf{break}\;
+         }
+         
+         \textbf{// Step 3: Agent computation phase}\\
+         \ForEach{agent in agents}{
+             agent.preconditions $\leftarrow$ calculate\_preconditions$(agent,\, \text{adjacency\_matrix})$\;
+             \If{check\_activation\_conditions(agent.preconditions)}{
+                 agent.output $\leftarrow$ agent.FoG(agent.preconditions, agent.inputs)\;
+             }
+         }
+         
+         delta $\leftarrow$ calculate\_max\_difference(target\_outputs, current\_outputs)\;
+         \If{delta $<$ ConvergenceThreshold}{
+             converged $\leftarrow$ True\;
+             \textbf{break}\;
+         }
+         
+         
+         agent.inputs $\leftarrow$ agent.output\;
+         
+         iteration $\leftarrow$ iteration + 1\;
+     }
+     
+         \Return AuxiliarProcess(agents, converged, adjacency\_matrix, arc\_adjustments)\;
+         }
+         
+        \end{algorithm}
+
+\begin{algorithm}[H]
+\caption{AuxiliarProcess}
+ \KwData{agents, converged, adjacency\_matrix, arc\_adjustments}
+ \KwResult{results}
+ 
+     results $\leftarrow$ CollectOutputs(agents.output)\;
+     
+     \If{not converged}{
+        arc\_adjustments $\leftarrow$ CorrectionPhase(agents , adjacency\_matrix);
+        Coordinator.update(arc\_adjustments)\;
+        
+        }
+        \textbf{// Final output collection}
+        \Return results\;
+
+\end{algorithm}
+ 
+ 
+ %-------------------------------
+ % Helper Functions
+ %-------------------------------
+
+\begin{algorithm}[H]
+        \caption{CorrectionPhase}
+        \KwIn{agents , adjacency\_matrix}
+        \KwOut{arc\_adjustments}
+     \textbf{// Step 5: Correction phase}\\
+         arc\_adjustments $\leftarrow$ [ ]\;
+         \ForEach{iteration}{
+             adjacency\_matrix, input\_agent , output\_agents  $\leftarrow$ stack\_edges[start]\;
+             error $\leftarrow$ calculate\_error(output\_agents.values, Y)\;
+             arc\_adjustments.append( Corrector.adjust\_arcs(error, adjacency\_matrix,agents))\;
+         }
+         
+         
+         agents.input.reset\_default\_outputs()\;
+         agents.ouput.reset\_default\_inputs()\;
+         
+         start $\leftarrow$ 0\;
+         \While{start $\le$ iteration}{
+             \textbf{// Step 1: Coordinator determines arcs}\\
+             adjacency\_matrix, input\_agent , output\_agents  $\leftarrow$ stack\_edges[start]\;
+             
+             \textbf{// Step 3: Agent computation phase}\\
+             
+             error $\leftarrow$ calculate\_error(output\_agents.values, Y)\;
+             arc\_adjustments.append( Corrector.adjust\_arcs(error, adjacency\_matrix, agents))\;
+               agents.input $\leftarrow$ agents.output
+             
+             start $\leftarrow$ start + 1\;
+             }
+         \Return arc\_adjustments\;
+         
+         
+    \end{algorithm}
+ 
+ \begin{algorithm}[H]
+ \caption{calculate\_preconditions}
+ \KwIn{agent, adjacency\_matrix}
+ \KwOut{preconditions}
+ preconditions $\leftarrow$ [ ]\;
+ \ForEach{connected\_agent in get\_connected\_agents(agent, adjacency\_matrix)}{
+     prev\_val $\leftarrow$ connected\_agent.previous\_output\;
+     curr\_val $\leftarrow$ connected\_agent.current\_output\;
+     max\_val $\leftarrow \max\bigl(|\text{prev\_val}|,\, |\text{curr\_val}|\bigr) + 1\times10^{-6}$\;
+     precondition $\leftarrow \displaystyle \frac{|\text{prev\_val} - \text{curr\_val}|}{\text{max\_val}}$\;
+     preconditions.append(precondition)\;
+ }
+ \Return preconditions\;
+ \end{algorithm} \\
+ 
+ \begin{algorithm}[H]
+ \caption{check\_activation\_conditions}
+ \KwIn{preconditions}
+ \KwOut{Boolean}
+ \Return all\bigl($p \geq$ ActivationThreshold for each $p$ in preconditions\bigr)\;
+ \end{algorithm} \\
+ 
+ \begin{algorithm}[H]
+ \caption{CollectOutputs}
+ \KwIn{OutputAgents}
+ \KwOut{List of outputs}
+ \Return [agent.output for each agent in OutputAgents]\;
+ \end{algorithm} \\
+ 
+ %-------------------------------
+ % Corrector Agent Operations
+ %-------------------------------
+ \begin{algorithm}[H]
+ \caption{Corrector.adjust\_arcs}
+ \KwIn{error, adjacency\_matrix, agents.output, agents.input}
+ \KwOut{New adjacency\_matrix}
+ adjustments $\leftarrow$ []\;
+ \ForEach{i,output\_agent in agents.output}{
+     target $\leftarrow$ output\_agent.F$^{-1}(Y_i)$\;
+     current $\leftarrow$ output\_agent.G(output\_agent.inputs)\;
+     residual $\leftarrow \; |\text{target} - \text{current}|$\;
+     connected\_agents $\leftarrow$ sort\_by\_relevance(agents.input)\;
+     cumulative\_effect $\leftarrow$ 0\;
+     updated\_weight $\leftarrow$ false\;
+     cumulative\_effect $\leftarrow$ 0\;
+     \ForEach{agent in connected\_agents}{
+         cumulative\_effect $\leftarrow$ cumulative\_effect + agent.output\;
+         adjustments.append$\bigl((\text{output\_agent},\, \text{agent})\bigr)$\;
+         \If{cumulative\_effect $\geq$ residual}{
+             \If{cumulative\_effect == residual}{
+                 \textbf{break}\;
+             }
+             updated\_weight $\leftarrow$ true
+             remaining $\leftarrow$ residual $-$ cumulative\_effect\;
+             adjusted\_weight $\leftarrow$ remaining / last\_agent.output\;
+             adjustments.append$\bigl((\text{last\_agent},\, \text{adjusted * last\_agent.output})\bigr)$\;
+             update\_connection\_weight( adjustments)\;
+             \textbf{break}\;
+         }
+     }
+     \If{ not updated\_weight}{
+        update\_connection\_weight(adjustments)
+     }
+ }
+ \Return generate\_new\_adjacency\_matrix(adjustments)\;
+ \end{algorithm} \\
+ 
+ %-------------------------------
+ % Coordinator Agent Operations
+ %-------------------------------
+ \begin{algorithm}[H]
+ \caption{Coordinator.generate\_arcs}
+ \KwIn{X}
+ \KwOut{adjacency\_matrix}
+ \Return ML\_model.predict$(X)$\;
+ \end{algorithm}
+ 
+ \begin{algorithm}[H]
+ \caption{Coordinator.update}
+ \KwIn{adjustments}
+ training\_data.add(adjustments)\;
+ retrain\_model()\;
+ \end{algorithm} \\
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ \section*{Análisis de convergencia}
+ 
+    El analisis de convergencia esta pricipalemnte relacionado a los agentes corrector y coordinador, puestos que estos agentes son los que guian a los agentes 
+    de entrada y salida. El agente coordinador siempre encuentra una solución correcta dada la entrada y salida de la red de las infinitas posibles, por tanto se 
+    puede decir que este agente converge a la ¨solución correcta¨. En los siguiente se asume que el agente coordinador converge al mínimo global: \\
+
+    El problema de encontrar $F:X \rightarrow Y$ se ha reducido $\underset{G}{\min}(|F(X)-Y|) \leq \epsilon$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
+    este el agente corrector converge a $G$  entonces la red converge a $Y$ dado $X$.
+
+
+ \section*{Análisis de complejidad}
+
+    A continuación se analisa la complejidad de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
+
+    Los agentes de entrada y salida tienen complejidad $N \geq O(FoG) $ siendo $N$ el número de estos agentes el agente en cuestión, esta consideración 
+    sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que de una entrada y devuelva una salida, la 
+    razón principal de la cota inferior es porqque $G$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
+    de entrada y salida, es decir $O(N)$. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
+    El algoritmo en su totalidad tiene complejidad: 
+    \begin{center}
+        
+        \begin{equation*}
+                
+                |D|(C( \max(O(F o G )) + O(f) + O(N)) + O(N)) \\
+                = O(|D|C( \max(O(F o G )) + O(f) + O(N)))\\
+
+        \end{equation*}
+
+    \end{center}
+
+Siendo $|D|$ el núumero de pares en el dataset y $C$ la cota máxima de iteración entre agentes.

@@ -1,0 +1,79 @@
+\chapter*{Introducción}\label{chapter:introduction}
+\addcontentsline{toc}{chapter}{Introducción}
+
+\label{sec:12}
+
+En un mundo cada vez más interconectado, las epidemias han dejado de ser eventos aislados para convertirse en crisis globales que amenazan la salud pública y la estabilidad económica. Desde el brote de virus tipo SARS hasta la pandemia de COVID-19, hemos sido testigos de cómo un virus puede cruzar fronteras en cuestión de horas, desafiando nuestras capacidades de respuesta y revelando vulnerabilidades en nuestros sistemas de salud. Pero, ¿qué pasaría si pudiéramos predecir con precisión el comportamiento de estas epidemias antes de que se conviertan en pandemias? \\
+
+La clave para enfrentar estos desafíos radica en la epidemiología computacional, un campo que fusiona las matemáticas aplicadas con la computación para modelar la propagación de enfermedades infecciosas. A través del desarrollo de modelos avanzados y el uso de técnicas innovadoras como el aprendizaje automático, los científicos han logrado avances significativos en la predicción y control de brotes. Sin embargo, esta tarea no está exenta de obstáculos. La variabilidad biológica de los patógenos, los datos incompletos y el comportamiento humano impredecible complican aún más nuestra capacidad para estimar con precisión el impacto de una epidemia. \\
+
+Para predecir el comportamiento de una epidemia se utilizan diferentes enfoques desde el modelado cientifico, las simulaciones con agentes u otra estrategia hasta la estimación de parámetros en
+modelos definidos por ecuaciones diferenciales ordinarias (EDO), área de estudio crucial en matemáticas aplicadas ya que es, además el objetivo de estudio de la presente tesis. Esta problemática se centra en determinar los valores de los parámetros que caracterizan un modelo matemático descrito por un sistema EDO, a partir de datos observacionales. \\
+
+Durante el siglo XVIII dieron los primeros pasos en este campo \hyperref[sec:6]{[6]}. La historia de la estimación de parámetros comienza con Daniel Bernoulli en 1760, quien desarrolló un modelo matemático para defender la inoculación contra la viruela. A finales del siglo XIX, se realizaron avances significativos con el trabajo de John Snow \hyperref[sec:11]{[11] } durante el brote de cólera en 1855, donde utilizó un enfoque basado en datos para identificar la fuente del brote. Posteriormente, Pyotr En'ko publicó un modelo epidémico en 1889 que estudió brotes sucesivos de sarampión. Los modelos compartimentales comienzan en la década del 20, del siglo pasado, específicamente en 1927 con \hyperref[sec:4]{[4]} Kermack y McKendrick que introdujeron el modelo SIR (Susceptible-Infectado-Recuperado) y se convirtió en un estándar para modelar epidemias. Enfoques Modernos y Avances Computacionales con el uso de la estimación bayesiana \hyperref[sec:3]{[3]}, se reportan a finales del Siglo XX y principios del XXI incorporando los datos lo que permite ajustar los valores de los parámetros dinámicamente a medida que se dispone de nueva información. Más tarde, la pandemia de COVID-19 \hyperref[sec:8]{[8]} impulsó el uso intensivo del SEIR (Susceptible-Expuesto-Infectado-Recuperado) y su variante SEIRV (Susceptible (S), Expuesto (E), Infectado (I) y Recuperado (R)). En 2020, se aplicaron muchas de estas y otras variantes. \\
+
+Hoy en día las técnicas para estimar parámetros son diversas, pero las más comunes son Método de Mínimos Cuadrados \hyperref[sec:5]{ [5]}, donde minimiza la norma(distancia) entre los valores observados y los predichos o estimados por el modelo, Memoria a Largo y Corto Plazo (Long Short-Term Memory, LSTM) \hyperref[sec:2]{ [2]} en el cual se aplica una red neuronal recurrente (RNN) que sobresale en la predicción de series temporales. Estas estrategias se han integrados con otros modelos compartimentales, como el SIRD (Susceptible-Infectado-Recuperado-Muerto), para predecir valores de parámetros que varían con el tiempo. Otra técnica aplicada es el Enfoque Bayesiano \hyperref[sec:3]{[3]}, este método utiliza la teoría de probabilidades para estimar los parámetros, considerando tanto la información previa sobre los parámetros (distribución a priori) como la información obtenida a partir de los datos observacionales (verosimilitud). La densidad posterior se utiliza para realizar inferencias sobre los parámetros. \\
+
+En este trabajo tiene como objetivo estimar parámetros aplicando técnicas de análisis intervalar y una arquitectura de agente cooperativos. Para esto la investigación se apoya en tres títulos clave que aportan diferentes perspectivas sobre el tema:
+\begin{itemize}
+\item Resolución del Problema de la Optimización Global mediante Análisis de Intervalos \hyperref[sec:2]{ \textbf{[2] }} de Greter Domínguez Rodríguez, tesis que revisa las técnicas de análisis de intervalos aplicadas a problemas de optimización global, estableciendo la convergencia teórica del algoritmo prototipo diseñado para resolver problemas con restricciones. Se llevan a cabo estudios computacionales que evalúan diferentes mecanismos de aceleración aplicables al algoritmo, validando su eficiencia y eficacia.
+
+\item Una Alternativa de Solución del Problema de Estimación de Parámetros en la Interfaz Eagle \hyperref[sec:1]{ \textbf{ [1]}} de la licenciada Rocio Ortiz Gancedo. En dicha tesis se presenta una segunda versión de la interfaz Eagle (dedicada a la resolución y estimación de parámetros de modelos epidemiológicos prototipos definidos por ecuaciones diferenciales ordinarias), incorporando técnicas de análisis de intervalos. Dicho algoritmo de optimización global incorpora ponderaciones, permitiendo manejar la incertidumbre de los parámetros del modelo.
+
+\item Inteligencia Artificial: Stuart Russell y Peter Norvig 2020 \hyperref[sec:3]{ \textbf{[3]}}, este texto es esencial para comprender los fundamentos teóricos detrás del razonamiento y la representación del conocimiento en sistemas inteligentes. Los capítulos relevantes abordan temas como inferencia en lógica de primer orden, representación del conocimiento y planificación automatizada.
+
+\end{itemize}
+
+Este trabajo presenta el manejo de datos inciertos a través de tres enfoques claves:\textbf{Arquitectura de Agentes Cooperativos}, que simula la interacción dinámica entre agentes que trabajan juntos en alcanzar objetivos comunes. La capacidad de los agentes para comunicarse y coordinarse es fundamental para abordar tareas que un solo agente no podría resolver, logrando mayor eficacia en sistemas distribuidos y heterogéneos. \textbf{Uso de Intervalos} como una herramienta sistemática para manejar la incertidumbre. Al emplear intervalos, se mejora la robustez del análisis al adaptarse a la variabilidad inherente en los datos observacionales. \textbf{Programación de Restricciones}, integra la programación de restricciones con análisis de intervalo. Se prevé que la combinación de estas técnicas proporcione una metodología eficiente para abordar problemas complejos.
+
+\subsection*{Planteamiento del problema}
+
+Se plantea un problema de optimización no lineal que minimiza el error entre los valores predichos por el modelo y los valores observados, respecto al vector de parámetros. Se establecen condiciones iniciales y restricciones temporales para asegurar que la solución sea válida dentro de un intervalo específico. El objetivo principal es estimar los parámetros que permiten que el modelo represente adecuadamente el comportamiento del sistema bajo estudio. \\
+
+Como se ha dicho anteriormente, se usará una arquitectura de agentes que consiguen mejorar sus predicciones con entrenamiento a partir de los datos disponibles. Cada agente comprende un conjunto de parámetros que lo definen y que, además, le permiten interactuar con otros agentes y modificar los datos para que, a partir del conjunto de llegada, se consiga el conjunto de salida definido por los datos de entrenamiento. Cuanto más entrenamiento recibe este sistema, más arcos se definen entre los agentes y, por tanto, más cooperación. Además, se determina con mayor precisión los intervalos en que pueden estar definidas las variables en cuestión. En cada predicción se ejecutan una cantidad de pasos menor o igual que un tamaño fijado $N$ en el que se espera que esté la mejor solución (óptimo local). Específicamente se propone ``extender el concepto de agente haciendo uso de la aritmética de intervalos para representar incertidumbre en los datos. Este objetivo busca desarrollar un marco teórico y práctico que permita manejar datos inciertos mediante el uso de intervalos, proporcionando una base sólida para la toma de decisiones en contextos donde la información es incompleta o imprecisa. Sin embargo, esta propuesta lleva a preguntas como, ¿Es efectiva?, ¿Converge al óptimo del problema? Como hipótesis se espera que usar agentes en la arquitectura propuesta para determinar el intervalo de la solución sea más efectivo que estimar la solución exacta que a priori sabemos que permite variaciones en el tiempo. \\
+
+Para conseguir el Objetivo General, nos proponemos los siguientes objetivos específicos:
+
+\begin{enumerate}
+\item Explorar el uso de intervalos para representar la incertidumbre en los datos.
+\begin{enumerate}
+\item Investigar metodologías existentes que utilicen intervalos como representación de datos inciertos.
+\item Analizar cómo estas representaciones pueden mejorar la robustez de las soluciones en problemas computacionales.
+\end{enumerate}
+
+    \item Formular restricciones que aseguren una solución robusta.
+    \begin{enumerate}
+        \item Identificar y definir las restricciones necesarias que deben cumplirse para garantizar que las soluciones obtenidas sean válidas y efectivas, incluso ante la variabilidad de los datos.
+    \end{enumerate}
+
+    \item Proponer una arquitectura basada en agentes cooperativos.
+    \begin{enumerate}
+        \item Diseñar una arquitectura que utilice agentes cooperativos, facilitando la interacción y colaboración entre diferentes componentes del sistema.
+        \item Implementar un lenguaje simbólico que permita a los agentes comunicarse y trabajar juntos hacia un objetivo común.
+    \end{enumerate}
+
+    \item Utilizar análisis de intervalos para estimar el óptimo local de la función objetivo.
+    \begin{enumerate}
+        \item Implementar técnicas de análisis de intervalos para determinar el rango probable del óptimo local, lo que permitirá una mejor aproximación en problemas complejos.
+    \end{enumerate}
+
+    \item Aplicar técnicas de programación de restricciones para estimar las restricciones que representan los datos.
+    \begin{enumerate}
+        \item Desarrollar métodos que integren programación de restricciones con análisis de intervalo, facilitando así la representación precisa de los datos en la función objetivo.
+    \end{enumerate}
+
+    \item Analizar la convergencia.
+
+    \item Implementar un prototipo.
+
+\end{enumerate}
+
+Estos objetivos proporcionan un marco claro y estructurado para abordar el problema planteado en la tesis.
+
+\subsection*{Estructura por capítulos}
+
+El trabajo está estructurado de la siguiente forma: \hyperref[sec:12]{ \textbf{Introducción}}, \hyperref[sec:13]{ \textbf{Capítulo 1 Estado del Arte}},
+\hyperref[sec:14]{ \textbf{Capítulo 2 Planteamiento del problema y propuesta de solución}:} Donde se describirá el modelo matemático y se identificarán las principales dificultades
+en la estimación de parámetros y en la integración de la arquitectura de agentes cooperativos con análisis de intervalos, ademas se propone una arquitectura de agentes cooperativos, se adapta el uso de intervalos y la programación de restricciones. \hyperref[sec:16]{ \textbf{Capítulo 3 Desarrollo del Algoritmo}:}
+Propuesta del algoritmo que optimiza globalmente mediante análisis de intervalos. \hyperref[sec:17]{ \textbf{Capítulo 4 Resultados y Validación}:} Presentación y
+análisis de los resultados obtenidos a partir del algoritmo propuesto. \hyperref[sec:18]{\textbf{Conclusiones}}, \hyperref[sec:20]{\textbf{Recomendaciones}}, \hyperref[sec:21]{ \textbf{Bibliografía}}.

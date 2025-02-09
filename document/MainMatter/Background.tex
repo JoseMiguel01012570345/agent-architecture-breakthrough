@@ -1,0 +1,218 @@
+\chapter{Estado del Arte}\label{chapter:state-of-the-art}
+\label{sec:13} \\
+
+Se presenta un breve resumen del problema de estimación de parámetros y una introducción a la arquitectura de agentes cooperativos. También se presentan los conceptos fundamentales de la aritmética de intervalos que se usara en la arquitectura propuesta, para manejar la incertidumbre.
+
+    \subsection*{ El Problema de Estimación de Parámetros (PEP) en modelos epidemiológicos definidos por Ecuaciones Diferenciales Ordinarias (EDOs).} \\
+
+
+    Para manejar la dinámica de afectación de una epidemia, se usan generalmente modelos epidemiológicos poblacionales definidos por sistemas de EDOs,
+    los cuales agrupan a la población en subpoblaciones según su relación con la enfermedad a analizar. Al resolver el PEP en dichos modelos, los métodos
+    más utilizados son el de Mínimos Cuadrados\hyperref[sec:5]{ [5]} y el de Máxima Verosimilitu \hyperref[sec:27]{[16]}. En los últimos años, al uso de métodos clásicos
+    de optimización como el de Máximo Descenso \hyperref[sec:27]{[17]} se han incorporado Metaheurísticas como Enjambre de Partículas (PSO) \hyperref[sec:28]{[18]}. Otras herramientas como los enfoques bayesianos, el método de Monte
+    Carlos (MCMC) \hyperref[sec:29]{[19]} proporcionan distribuciones posteriores de parámetros, manejando incertidumbre, herramientas como Stan y PyMC3 facilitan su implementación.
+    ABC (Approximate Bayesian Computation)\hyperref[sec:30]{[20]}, usado cuando la verosimilitud es intratable, comparando simulaciones con datos reales mediante estadísticos resumidos.
+    Análisis de sensibilidad global, índices de Sobol \hyperref[sec:31]{[21]} para identificar parámetros críticos, priorizando su estimación. Aprendizaje automático, redes neuronales
+    informadas por física (PINNs)\hyperref[sec:32]{[22]}, integran EDOs en la función de pérdida, estimando parámetros y resolviendo ecuaciones simultáneamente. Las futuras direcciones van desde modelos híbridos que combinar EDOs con redes
+    complejas (ej: movilidad humana) hasta aprendizaje profundo.
+
+    \subsection*{ \Large Análisis Intervalar}
+
+La investigación sobre el desarrollo de los sistemas numéricos y su evolución es fundamental para comprender la matemática moderna. El sistema de números naturales
+($\mathbb{N}$) se originó para satisfacer la necesidad de contar, permitiendo operaciones básicas como la suma y el producto. A medida que surgieron preguntas más
+complejas, se desarrollaron sistemas numéricos adicionales, incluyendo los números enteros ($\mathbb{Z}$), racionales ($\mathbb{Q} $) y finalmente los números reales
+ ($\mathbb{R}$), que son esenciales en el cálculo y permiten representar todos los valores en la recta real. En la década de 1960, R.E. Moore propuso un enfoque 
+ innovador para la estimación de errores en cálculos digitales. En lugar de trabajar con un número real específico $x$, sugirió utilizar un intervalo que contenga
+$x$, lo que permite establecer límites sobre el error al aproximar $x$ con cualquier punto dentro del intervalo. Este concepto ha llevado al desarrollo de métodos
+de redondeo en la aritmética estándar de punto flotante, que incluye redondeo al número más cercano, por exceso y por defecto. Los intervalos numéricos son herramientas
+matemáticas útiles y se clasifican como abiertos, semiabiertos y cerrados. En este contexto, se trabajará principalmente con intervalos cerrados, siguiendo la notación
+estándar propuesta por Kearfott. En nuestro caso las letras en negrita denotarán intervalos: las minúsculas cantidades escalares y las mayúsculas vectores y matrices.
+Los corchetes delimitarán intervalos, mientras que los paréntesis delimitarán vectores y matrices. El subrayado inferior denotará los extremos inferiores de los intervalos
+y el subrayado superior los extremos superiores. Por ejemplo: $X = (x_1, x_2, x_n)$ un vector de intervalos $xi = [ \uline x_i, \overline{ x_i } ]$ i-ésimo intervalo.
+Puede escribirse también $X = [ \uline X, \overline{ X } ]$, donde $\uline X = ( \uline x_1, \uline x_2, ..., \uline x_n)$, $\overline{X}= (\overline{x_1}, \overline{x_2}, ..., \overline{x_n})$.
+La anchura de un intervalo $X$ se define como $w(X)=| \overline{X} - \uline X|$, en caso de ser vectores lo definimos como $w(V)=\sum_{i=0}^{|V|}w(v_i)$ siendo $v_i \in V$. \\
+
+\textbf{ Definición 1}. Un intervalo x es degenerado si x = x, con lo cual x solo contiene un
+número real x y puede ser denotado por este, es decir $x = [x,x]$ donde $x \in \mathbb{R}$.\\
+
+Un intervalo es un conjunto, por tanto, se desarrollan operaciones entre estos de la misma forma que en conjuntos. Las operaciones aritméticas se definen como sigue:
+
+\begin{flushleft}
+\textbf{Suma}:
+\\
+$A + B = \{a + b : a \in A, b \in B \}$ \\
+$A + B =[\uline a + \uline b, \overline{b} +\overline{B} ]$ \\
+
+\end{flushleft}
+
+\begin{flushleft}
+
+\textbf{Resta}:
+\\
+$A - B = \{ a - b : a \in A, b \in B \}$ \\
+$A - B =[\uline a - \uline b, \overline{a} -\overline{b} ]$ \\
+
+\end{flushleft}
+
+\begin{flushleft}
+
+    \textbf{División }: \\
+    
+        \[
+        A / B =
+        \begin{cases}
+        [\uline{a}/\bar{b}, \bar{a}/\uline{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} > 0, \bar{b} > 0 \\
+        [\bar{a}/\bar{b}, \uline{a}/\uline{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} > 0 \\
+        [\uline{a}/\bar{b}, \bar{a}/\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0,   \uline{b} > 0, \bar{b} < 0 \\
+        [\bar{a}/\uline{b}, \uline{a}/\uline{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} < 0 \\
+        [\uline{a}/\uline{b}, \bar{a}/\uline{b}] & \text{si } \uline{a} \geq 0, \bar{a} < 0, \uline{b} > 0, \bar{b} > 0 \\
+    
+        [\bar{a}/\bar{b}, \uline{a}/\bar{b}] & \text{si } \uline{a} < 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} > 0 \\
+    
+        [\uline{a}/\uline{b}, \bar{a}/\bar{b}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} > 0, \bar{b} > 0 \\
+        [\bar{a}/\uline{b}, \uline{a}/\bar{b}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} > 0, \bar{b} < 0 \\
+        \end{cases}
+        \]
+    
+\end{flushleft}
+
+\begin{flushleft}
+\textbf{Multiplicación }: \\
+
+    \[
+    A * B =
+    \begin{cases}
+    [\uline{ab}, \bar{a}\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} \geq 0, \bar{b} \geq 0 \\
+    [\uline{ab}, \uline{a}\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} \geq 0, \bar{b} < 0 \\
+    [\bar{a}\uline{b}, \uline{a}\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} \geq 0 \\
+    [\bar{a}\uline{b}, \bar{a}\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} < 0 \\
+    [\uline{ab}, \bar{a}\uline{b}] & \text{si } \uline{a} \geq 0, \bar{a} < 0, \uline{b} \geq 0, \bar{b} \geq 0 \\
+    [\max\{\bar{a}\bar{b}, \uline{ab}\}, \min\{\bar{a}\uline{b}, \bar{a}\bar{b}\}] & \text{si } \uline{a} \geq 0, \bar{a} < 0, \uline{b} \geq 0, \bar{b} < 0 \\
+    [0, 0] & \text{si } \uline{a} \geq 0, \bar{a} < 0, \uline{b} < 0, \bar{b} \geq 0 \\
+    [\bar{a}\bar{b}, \uline{a}\bar{b}] & \text{si } \uline{a} \geq 0, \bar{a} < 0, \uline{b} < 0, \bar{b} < 0 \\
+    [\uline{a}\bar{b}, \bar{a}\bar{b}] & \text{si } \uline{a} < 0, \bar{a} \geq 0, \uline{b} \geq 0, \bar{b} \geq 0 \\
+    [0, 0] & \text{si } \uline{a} < 0, \bar{a} \geq 0, \uline{b} \geq 0, \bar{b} < 0 \\
+    [\min\{\uline{a}\bar{b}, \bar{a}\uline{b}\}, \max\{\uline{ab}, \bar{a}\bar{b}\}] & \text{si } \uline{a} < 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} < 0 \\
+    [\bar{a}\uline{b}, \uline{ab}] & \text{si } \uline{a} < 0, \bar{a} \geq 0, \uline{b} < 0, \bar{b} \geq 0 \\
+    [\uline{a}\bar{b}, \bar{a}\uline{b}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} \geq 0, \bar{b} \geq 0 \\
+    [\bar{a}\bar{b}, \bar{a}\uline{b}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} \geq 0, \bar{b} < 0 \\
+    [\uline{a}\bar{b}, \uline{ab}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} < 0, \bar{b} \geq 0 \\
+    [\bar{a}\bar{b}, \uline{ab}] & \text{si } \uline{a} < 0, \bar{a} < 0, \uline{b} < 0, \bar{b} < 0
+    \end{cases}
+    \]
+
+\end{flushleft}
+
+    \subsection*{ \Large Agentes}
+
+    La inteligencia artificial se originó a partir de la convergencia de la búsqueda en el espacio de estados, la demostración de teoremas y la teoría de control.
+        El primer sistema de planificación de importancia, STRIPS (Stanford Research Institute Problem Solver)\hyperref[sec:33]{[23]}, fue desarrollado en 1971 para el robot Shakey en SRI,
+        utilizaban planificación lineal, posteriormente se descubrió que era incompleta. El lenguaje STRIPS evolucionó posteriormente a ADL (Action Description
+        Language) y finalmente a PDDL (Planning Domain Definition Language)\hyperref[sec:34]{[24]}, que se ha utilizado en la Competición Internacional de Planificación desde 1983.
+        La planificación de orden parcial surgió como respuesta a las limitaciones de la planificación lineal, dominando la investigación durante aproximadamente dos
+        décadas. Hoy en día se emplean otros enfoques que permiten llevar a la práctica agentes en amplia variedad de sistemas autónomos que van desde robots montados
+        en líneas de ensamblaje de vehículos hasta robots domésticos de limpieza, ejemplo de ellos son búsqueda bidireccional, bases de datos de patrones,
+        planificadores de cartera, red de Tareas Jerárquicas (HTN), planificación conformante y contingente, planificación en línea con monitoreo de ejecución
+        (PLANEX, SIPE), planificación con restricciones de tiempo y asignación de recursos, codificación de problemas de planificación
+        como problemas de satisfacción booleana (SAT), problemas de satisfacción de restricciones y búsqueda en el espacio de planes parcialmente ordenados. \\
+
+
+        \textbf{Definición de planificación clásica}: se define como la tarea de encontrar una secuencia de acciones para lograr un objetivo en un entorno discreto, determinista, estático y completamente observable. \\
+
+        Un ejemplo clásico de un problema que un agente planificador puede resolver bajo la definición de planificación clásica es el problema del Mundo de Bloques. En este escenario: el entorno es discreto (los bloques están en posiciones distintas), determinista (las acciones tienen resultados predecibles), estático (nada cambia a menos que el agente actúe) y completamente observable (el agente conoce el estado exacto de todos los bloques). El objetivo es organizar un conjunto de bloques en una configuración específica. El agente puede realizar acciones como levantar un bloque y ponerlo en otro lugar.\\
+
+        Sean los valores iniciales: \\
+
+        \textbf{ Estado Inicial}:
+        \begin{itemize}
+        \item  Tres bloques: A, B y C
+        \item  Todos los bloques están sobre la mesa
+        \item  El brazo robótico está vacío \\
+        \end{itemize}
+
+        \textbf{ Estado Objetivo}:
+        \begin{itemize}
+        \item  El bloque C está sobre la mesa
+        \item  El bloque B está encima del bloque C
+        \item  El bloque A está encima del bloque B \\
+
+        \end{itemize}
+
+        \textbf{Acciones Disponibles}:
+        \begin{enumerate}
+
+        \item  Recoger(X): Recoger el bloque X de la mesa o de la parte superior de una pila
+        \item  Colocar(X): Colocar el bloque X que se sostiene sobre la mesa
+        \item  Apilar(X, Y): Colocar el bloque X que se sostiene encima del bloque Y \\
+
+        \end{enumerate}
+
+        Un plan válido para resolver este problema sería:
+        \begin{enumerate}
+
+        \item  Recoger(B)
+        \item  Apilar(B, C)
+        \item  Recoger(A)
+        \item  Apilar(A, B)
+        \end{enumerate}
+
+    Los agentes han sido ampliamente usados en el campo de la epidemiologia para simular interacciones realistas entre las entidades de los modelos que comúnmente se usan para predecir. Sin embargo, presuponen un alto rendimiento computacional dado que la población de agentes puede llegar a los cientos de millones y continuar su crecimiento de forma exponencial en ciertos modelos que consideran la tasa de natalidad. Es por esto que simular una epidemia se puede considerar de los métodos predictivos más ineficientes existentes. \hyperref[sec:22]{[12]} \hyperref[sec:23]{[13]}
+
+    \subsection*{ \Large Programación de restricciones}
+
+La programación de restricciones es un paradigma de programación que se utiliza para modelar y resolver problemas complejos, especialmente aquellos de naturaleza
+combinatoria. Sus características principales son expresar relaciones entre variables en términos de restricciones (ecuaciones o reglas lógicas). Se enfoca en la
+viabilidad más que en la optimización, buscando soluciones que satisfagan todas las restricciones definidas. Utilizada para resolver problemas difíciles en áreas
+como planificación, programación de tareas, diseño en ingeniería y toma de decisiones. Emplea solucionadores de restricciones, que son algoritmos especializados
+para abordar problemas de satisfacción y optimización de restricciones. La programación de restricciones ha sido identificada por la ACM como una dirección estratégica
+en la investigación en computación desde la década de 1901. En la década de los 60s comienza a formalizarse esta técnica, dando paso a hitos importantes. En 1960
+se desarrolla el algoritmo DPLL (Davis-Putnam-Logemann-Loveland)\hyperref[sec:35]{[25]}, sentando bases lógicas para la resolución de CSPs(programación de satisfacción de restricciones), 1977, Alan K. Mackworth
+desarrolla el algoritmo AC-3, que se convierte en el estándar para la consistencia de arco \hyperref[sec:36]{[26]}. Para 1980s, se lograron avances en búsqueda y optimización, en 1980s Rina
+Dechter y Judea Pearl introducen el backjumping(salto hacia atrás) para reducir búsquedas redundantes, entre 1980 y 1990 se desarrollan heurísticas para optimizar
+casos especiales. En 1987, Jaffar y Lassez desarrollan CLP(FD) (Constraint Logic Programming over Finite Domains) \hyperref[sec:37]{[27]}, sentando bases numéricas para CSPs. A partir del siglo XXI se comenzaron a usar
+enfoques dirigidos principalmente al campo del aprendizaje de máquinas para estimar valores de las variables o restricciones innecesarias. \\
+
+El concepto quizás más importante en la programación de restricciones es la consistencia de arco, usado en el algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^3)$ donde $e$ es el número de arcos y $d=|D|$, siendo $D$ el dominio de definición de las variables, sin embargo, puede mejorarse a $O(ed^2)$. \\ \\
+\textbf{ Consistencia de arco }: Un arco $X \rightarrow Y$ es consistente si y solo si para cada $X$ en el origen existe algún valor $Y$ en el destino que puede ser asignado sin violar ninguna restricción \\
+
+\textbf{AC-3} opera sobre restricciones, variables y dominios de variables. El algoritmo funciona de la siguiente manera:
+
+\begin{algorithm}[H]
+\caption{Consistencia de Arcos (Arc Consistency)}
+\KwData{Conjunto de variables $X$, restricciones unarias y grafo de restricciones.}
+\KwResult{Dominios consistentes o sin solución.}
+\BlankLine
+
+\textbf{// Paso 1: Inicializa los dominios de las variables}\\
+\ForEach{variable $x \in X$}{
+    Inicializa el dominio de $x$ de acuerdo a las restricciones unarias (por ejemplo, $X \neq 2$)\;
+}
+\BlankLine
+
+\textbf{// Paso 2: Crea la lista de trabajo con los arcos del grafo de restricciones}\\
+Crea una lista de trabajo $WL$ con todos los arcos $(x, y)$ en el grafo de restricciones\;
+\BlankLine
+
+\textbf{// Paso 3: Procesa los arcos mientras la lista de trabajo no esté vacía}\\
+\While{$WL$ no esté vacía}{
+    Selecciona y elimina un arco $(x, y)$ de la lista de trabajo $WL$\;
+    \BlankLine
+    \textbf{// Paso 4: Reduce el dominio de $x$ basándose en las restricciones con $y$}\\
+    Reduce el dominio de $x$ usando las restricciones entre $x$ y $y$\;
+    \If{el dominio de $x$ se reduce}{
+        \textbf{// Agrega los arcos relacionados a la lista de trabajo}\\
+        \ForEach{arco $(z, x)$ con $z \neq y$}{
+            Agrega $(z, x)$ a la lista de trabajo $WL$\;
+        }
+    }
+}
+\BlankLine
+
+\textbf{// Paso 5: Condición de término}\\
+\If{la lista de trabajo $WL$ está vacía}{
+    \Return{Dominios consistentes con las restricciones de arco}\;
+}
+\ElseIf{el dominio de alguna variable queda vacío}{
+    \Return{No hay solución (contradicción encontrada)}\;
+}
+\end{algorithm}
