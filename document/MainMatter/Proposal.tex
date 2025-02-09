@@ -52,7 +52,7 @@
 
             \item Modificar el espacio de llegada de cada agente para conseguir un espacio de salida
             \item Saber cómo parar dado que los agentes pueden crear ciclos de iteración entre ellos.
-            \item Cada agente debe saber en cada iteración con que agentes interactuar.
+            \item Cada agente debe saber en cada iteración con qué agentes interactuar.
             \item Los agentes deben saber qué hacer cuando cometen errores, es decir, el error debe minimizarse en el tiempo.\\
 
         \end{itemize}
@@ -63,7 +63,7 @@
 
         Para atacar el primer punto que se encuentra en las dificultades de la arquitectura en el capítulo anterior se tiene que definir el espacio de llegada que recibe el agente y el espacio de salida. Para ellos se hacen las siguientes consideraciones.\\
 
-        Cada agente en cada iteración tiene un conjunto de precondiciones que activan al agente, es decir, denotamos a $P$ como el conjunto de precondiciones y se define como $P=[ p_0,p_1,...,p_n]$ donde $p_i$ es una precondición que puede ser verdadera o falsa. $P \iff p_0 \land p_1 \land...\land p_n$. En este caso se considera verdadera que la precondición $p_i$ adquiera un valor. Por ejemplo, si el universo de precondiciones es $U=[p_0,p_1,...,p_n]$ y $P=[p_0,p_1,...,p_k]$ siendo $k<n$ entonces las precondiciones $[p_{K+1},...,p_n]$ son falsas para el agente. \\
+        Cada agente en cada iteración tiene un conjunto de precondiciones que lo activan, es decir, denotamos a $P$ como el conjunto de precondiciones y se define como $P=[ p_0,p_1,...,p_n]$ donde $p_i$ es una precondición que puede ser verdadera o falsa. $P \iff p_0 \land p_1 \land...\land p_n$. En este caso se considera verdadera que la precondición $p_i$ adquiera un valor. Por ejemplo, si el universo de precondiciones es $U=[p_0,p_1,...,p_n]$ y $P=[p_0,p_1,...,p_k]$ siendo $k<n$ entonces las precondiciones $[p_{K+1},...,p_n]$ son falsas para el agente. \\
 
         Se define el conjunto de acciones que puede tomar el agente donde cada acción puede ser refinada a un conjunto potencialmente infinito de acciones. Es decir, sea $F(P,X)=Z$, entonces $Z$ es una acción a tomar por el agente, donde $P$ son las precondiciones y $X$ los valores de entrada del agente \\
 
@@ -102,22 +102,20 @@
 
         Antes de saltar sobre los detalles de la arquitectura es necesario precisar que la arquitectura propuesta se basa en una red de agentes donde cada uno tiene una funcionalidad específica y se entrena para mejorar sus resultados. Notar que este entrenamiento es supervisado. \\
 
-        La arquitecta esta divida en tres agentes principales los agentes de entrada, los agentes de salida, agente coordinador de acciones y el agente corrector de acciones. Lo siguiente asume que la función tiene la forma $R^n \xrightarrow{f} R^m$. \\
+        La arquitecta está divida en cuatro agentes: los agentes de entrada, los agentes de salida, agente coordinador de acciones y el agente corrector de acciones. Lo siguiente asume que la función tiene la forma $R^n \xrightarrow{f} R^m$. \\
 
-        Agentes de entrada: Estos agentes reciben una entrada $X$ y devuelve un valor $y$, es decir sea $FoG$ la función del agente $i$, entonces el agente recibe $(P,X)$ donde $P$ son las precondiciones, $X$ los valores de entrada y
-        $G(P,X)=p_0x_0 + p_1x_1 +...+p_nx_n$ siendo $n$ el número de agentes, luego envía su resultado al puerto de salida para que otro agente la escuche. Estos agentes no son los responsables al menos de forma directa de la salida de la red.\\
+        Agentes de entrada: Estos agentes reciben una entrada $X$ y devuelve un valor $y$, es decir sea $FoT$ la función del agente $i$, entonces el agente recibe $(P,X)$ donde $P$ son las precondiciones, $X$ los valores de entrada y
+        $T(P,X)=p_0x_0 + p_1x_1 +...+p_nx_n$ siendo $n$ el número de agentes, luego envía su resultado al puerto de salida para que otro agente la escuche. Estos agentes no son los responsables al menos de forma directa de la salida de la red.\\
 
         Agentes de salida: Existe un agente de salida por cada parámetro de salida estos agentes son los responsables de escuchar de los agentes de entrada y devolver la salida.
-        Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoG$ 
+        Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoT$ 
         que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que este la respuesta. Estos agentes se determinan al inicio del entrenamiento.
 
         Un punto importante a destacar es que la función de $F$ de ambos agentes, es su función característica, es decir, una función que solo implementan ellos y además se exige que sea inversible.
 
-        \subsection*{El agente corrector y el agente coordinador}
-
         Agente coordinador: Este agente se encarga de resolver en cada $k$-iteración las arcos entre agentes. Este agente recibe como entrada, la entrada a la red 
         y devuelve los arcos entre agentes. Si este agente no define arcos entre agentes, el resultado de la red está en el valor de los agentes de salida definidos. Este agente se entrena 
-        a partir de los errores cometidos por sus arcos estimadas. Este agente puede ser un regresor que sea capaz de recibir una entrada $m$ de parámetros y devolver
+        a partir de los errores cometidos por sus arcos estimados. Este agente puede ser un regresor que sea capaz de recibir una entrada $m$ de parámetros y devolver
          un vector $V$ donde $|V|=(|$ Agentes de Entrada $| + |$ Agente de salida $|)(|$ Agentes de Entrada $| + |$ Agente de salida $| - 1)$ y además $v_i \in [0,1]$.
           El vector $V$ codifica la matriz $W$ de agentes donde la componente $w_{ij}$ refleja el peso de los arco entre el agente $i$ y el agente $j$, este valor es una 
           medida de cuando influye en el agente $i$ las decisiones del agente $j$.\\
@@ -140,7 +138,7 @@
 
             \[ D'_j := D_j \cap \frac{b - \sum_{i \in [1..n] - \{j\}} int(a_i \cdot D_i)}{a_j}. \]
 
-            Esta regla es aplicada a los números enteros, sin embargo, se puede extender a los número reales, dada que este resulta es un resultado de la aritmética de intervalos la cual se define en reales.\\
+            Esta regla es aplicada a los números enteros, sin embargo, se puede extender a los números reales, dado que un resultado de la aritmética de intervalos la cual se define en reales.\\
 
         Agente corrector: Este agente corrige los arcos generadas por el agente coordinador y las envía al agente coordinador para que este las tome en cuenta en su próxima generación. Recibe como entrada el estado de los agentes de entrada y salida y los arcos entre estos. Este agente actúa una vez que la red pare sus iteraciones. \\
 
@@ -148,7 +146,7 @@
         Como se quiere que la red resuelva el problema en la menor cantidad de interacciones, comenzamos desde la iteración 1 a buscar qué arcos habrían dado la
         respuesta correcta. Por cada agente de salida buscamos qué o cuales agentes de entrada darian la respuesta correcta.  \\
 
-        Se propone encontrar un arco tal que $\underset{G}{\min}(|F(X)-Y|)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=G(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
+        Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(|F(X)-Y|)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
         entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[|r-r'|,|r-r'|]$. Tenemos entonces dos posibles casos: \\
 
         Caso 1: $[|r-r'|,|r-r'|] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes
@@ -176,6 +174,6 @@
         \begin{center}
                 \includegraphics[width=0.6\textwidth]{images/AgentArchitecture.drawio.png}
                 \begin{center}
-                    fig.1
+                    fig.1 Flujo de trabajo entre los agentes
                 \end{center}
         \end{center}

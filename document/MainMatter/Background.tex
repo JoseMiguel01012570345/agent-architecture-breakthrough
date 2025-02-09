@@ -1,10 +1,10 @@
+
 \chapter{Estado del Arte}\label{chapter:state-of-the-art}
 \label{sec:13} \\
 
 Se presenta un breve resumen del problema de estimación de parámetros y una introducción a la arquitectura de agentes cooperativos. También se presentan los conceptos fundamentales de la aritmética de intervalos que se usara en la arquitectura propuesta, para manejar la incertidumbre.
 
-    \subsection*{ El Problema de Estimación de Parámetros (PEP) en modelos epidemiológicos definidos por Ecuaciones Diferenciales Ordinarias (EDOs).} \\
-
+    \subsection*{ El Problema de Estimación de Parámetros (PEP) en modelos epidemiológicos definidos por Ecuaciones Diferenciales Ordinarias (EDOs).}
 
     Para manejar la dinámica de afectación de una epidemia, se usan generalmente modelos epidemiológicos poblacionales definidos por sistemas de EDOs,
     los cuales agrupan a la población en subpoblaciones según su relación con la enfermedad a analizar. Al resolver el PEP en dichos modelos, los métodos
@@ -172,7 +172,45 @@ Dechter y Judea Pearl introducen el backjumping(salto hacia atrás) para reducir
 casos especiales. En 1987, Jaffar y Lassez desarrollan CLP(FD) (Constraint Logic Programming over Finite Domains) \hyperref[sec:37]{[27]}, sentando bases numéricas para CSPs. A partir del siglo XXI se comenzaron a usar
 enfoques dirigidos principalmente al campo del aprendizaje de máquinas para estimar valores de las variables o restricciones innecesarias. \\
 
-El concepto quizás más importante en la programación de restricciones es la consistencia de arco, usado en el algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^3)$ donde $e$ es el número de arcos y $d=|D|$, siendo $D$ el dominio de definición de las variables, sin embargo, puede mejorarse a $O(ed^2)$. \\ \\
+A continuación se darán un conjunto de definición con vista a enunciar uno de los algoritmos más importantes de la técnica. \\
+
+Un CSP se define como una tupla $(C,X,D)$ donde $C$ es el conjunto de restrincciones, $X$ es el de variable a asignarle un valor que cumpla con las $C_i$ resticciones 
+sobre el dominio $d_i$, y $D={d_0,d_1,...,d_n}$ siendo $n=|X|$ \\
+
+\textbf{Definición de proyección}: Sea una secuencia de variables $X := x_1,..., x_n$ definidas respectivamente
+para los dominios $D_1,..., D_n$ y sea un elemento $d:= (d_1,..., d_n)$ de $D_1 \times \cdots \times$
+$D_n$ y una subsecuencia $\chi:= x_{i_1},..., x_{i_m}$ de $X$. Se denota la secuencia
+$(d_{i_1},..., d_{i_m})$ por $d[\chi]$ y se define como la proyección de $d$ sobre $\chi$. \\
+
+
+\textbf{Definición de unión}: Sean los CSPs $P_0, \ldots, P_m$, donde $m \geq 1$, y una secuencia $X$ de sus variables comunes. Se dice que la unión 
+de $P_1, \ldots, P_m$ es equivalente a $P_0$ con respecto a $X$ si:
+\[ \{ d[X] \mid d \text{ es una solución para } P_0 \} = \bigcup_{i=1}^m \{ d[X] \mid d \text{ es una solución para } P_i \}. \]
+
+
+\textbf{Definición nodo-consistente}: Sea un CSP $P$, si para cada variable $x$, cada restricción unaria sobre $x$ coincide con el dominio de $x$, se considera
+que $P$ es nodo-consistente. \\
+
+\textbf{Definición arco-consistente}: Sea un CSP $P$, una restricción binaria $C$ sobre las variables $x, y$ con los dominios $D_x$ y $D_y$, es decir, $C \subseteq D_x \times D_y$. 
+Se dice que $C$ es arco-consistente si cumple que $\forall a \in D_x \, \exists b \in D_y : (a, b),(b,a) \in C$  $P$ y todas sus restricciones binarias son 
+arco-consistentes. \\
+
+
+\textbf{Definición de Hiperarco-Consistencia}: Sea \( C(x_1, x_2, \dots, x_k) \) una restricción que involucra las variables \( x_1, x_2, \dots, x_k \), cada una con su dominio \( D(x_i) \). Se dice
+ que la restricción \( C \) es \textbf{hiperarco consistente} si, para cada variable \( x_i \) (con \( i \in \{1,2,\dots,k\} \)) y para cada valor 
+ \( a \in D(x_i) \), existe una asignación para las demás variables, es decir, existen valores
+\[
+a_1 \in D(x_1),\quad a_2 \in D(x_2),\quad \dots,\quad a_{i-1} \in D(x_{i-1}),\quad a_{i+1} \in D(x_{i+1}),\quad \dots,\quad a_k \in D(x_k)
+\]
+tales que se satisfaga la restricción:
+\[
+C(a_1, a_2, \dots, a_{i-1}, a, a_{i+1}, \dots, a_k).
+\]
+
+En otras palabras, cada valor \( a \) en el dominio de \( x_i \) puede extenderse a una solución parcial de la restricción \( C \) asignando apropiadamente valores a las otras variables implicadas. \\
+
+
+El algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^3)$ donde $e$ es el número de arcos y $d=|D|$, siendo $D$ el dominio de definición de las variables, sin embargo, puede mejorarse a $O(ed^2)$. \\ \\
 \textbf{ Consistencia de arco }: Un arco $X \rightarrow Y$ es consistente si y solo si para cada $X$ en el origen existe algún valor $Y$ en el destino que puede ser asignado sin violar ninguna restricción \\
 
 \textbf{AC-3} opera sobre restricciones, variables y dominios de variables. El algoritmo funciona de la siguiente manera:

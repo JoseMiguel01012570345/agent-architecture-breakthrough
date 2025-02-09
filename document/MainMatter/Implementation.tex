@@ -42,7 +42,7 @@
          \ForEach{agent in agents}{
              agent.preconditions $\leftarrow$ calculate\_preconditions$(agent,\, \text{adjacency\_matrix})$\;
              \If{check\_activation\_conditions(agent.preconditions)}{
-                 agent.output $\leftarrow$ agent.FoG(agent.preconditions, agent.inputs)\;
+                 agent.output $\leftarrow$ agent.FoT(agent.preconditions, agent.inputs)\;
              }
          }
          
@@ -158,7 +158,7 @@
  adjustments $\leftarrow$ []\;
  \ForEach{i,output\_agent in agents.output}{
      target $\leftarrow$ output\_agent.F$^{-1}(Y_i)$\;
-     current $\leftarrow$ output\_agent.G(output\_agent.inputs)\;
+     current $\leftarrow$ output\_agent.T(output\_agent.inputs)\;
      residual $\leftarrow \; |\text{target} - \text{current}|$\;
      connected\_agents $\leftarrow$ sort\_by\_relevance(agents.input)\;
      cumulative\_effect $\leftarrow$ 0\;
@@ -203,9 +203,7 @@
  retrain\_model()\;
  \end{algorithm} \\
 
-\newpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
  \section*{Análisis de convergencia}
  
@@ -221,17 +219,17 @@
 
     A continuación se analisa la complejidad de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
 
-    Los agentes de entrada y salida tienen complejidad $N \geq O(FoG) $ siendo $N$ el número de estos agentes el agente en cuestión, esta consideración 
+    Los agentes de entrada y salida tienen complejidad $N \geq O(FoT) $ siendo $N$ el número de estos agentes el agente en cuestión, esta consideración 
     sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que de una entrada y devuelva una salida, la 
-    razón principal de la cota inferior es porqque $G$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
+    razón principal de la cota inferior es porque $T$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
     de entrada y salida, es decir $O(N)$. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
     El algoritmo en su totalidad tiene complejidad: 
     \begin{center}
         
         \begin{equation*}
                 
-                |D|(C( \max(O(F o G )) + O(f) + O(N)) + O(N)) \\
-                = O(|D|C( \max(O(F o G )) + O(f) + O(N)))\\
+                |D|(C( \max(O(F o T )) + O(f) + O(N)) + O(N)) \\
+                = O(|D|C( \max(O(F o T )) + O(f) + O(N)))\\
 
         \end{equation*}
 
