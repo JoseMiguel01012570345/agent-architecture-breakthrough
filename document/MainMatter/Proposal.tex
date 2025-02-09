@@ -146,7 +146,7 @@
         Como se quiere que la red resuelva el problema en la menor cantidad de interacciones, comenzamos desde la iteración 1 a buscar qué arcos habrían dado la
         respuesta correcta. Por cada agente de salida buscamos qué o cuales agentes de entrada darian la respuesta correcta.  \\
 
-        Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(|F(X)-Y|)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
+        Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(||F(X)-Y||)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
         entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[|r-r'|,|r-r'|]$. Tenemos entonces dos posibles casos: \\
 
         Caso 1: $[|r-r'|,|r-r'|] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes

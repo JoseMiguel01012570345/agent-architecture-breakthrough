@@ -117,7 +117,7 @@ $A - B =[\uline a - \uline b, \overline{a} -\overline{b} ]$ \\
         como problemas de satisfacción booleana (SAT), problemas de satisfacción de restricciones y búsqueda en el espacio de planes parcialmente ordenados. \\
 
 
-        \textbf{Definición de planificación clásica}: se define como la tarea de encontrar una secuencia de acciones para lograr un objetivo en un entorno discreto, determinista, estático y completamente observable. \\
+        \textbf{Definición 2.}: se define como la tarea de encontrar una secuencia de acciones para lograr un objetivo en un entorno discreto, determinista, estático y completamente observable. \\
 
         Un ejemplo clásico de un problema que un agente planificador puede resolver bajo la definición de planificación clásica es el problema del Mundo de Bloques. En este escenario: el entorno es discreto (los bloques están en posiciones distintas), determinista (las acciones tienen resultados predecibles), estático (nada cambia a menos que el agente actúe) y completamente observable (el agente conoce el estado exacto de todos los bloques). El objetivo es organizar un conjunto de bloques en una configuración específica. El agente puede realizar acciones como levantar un bloque y ponerlo en otro lugar.\\
 
@@ -164,39 +164,39 @@ La programación de restricciones es un paradigma de programación que se utiliz
 combinatoria. Sus características principales son expresar relaciones entre variables en términos de restricciones (ecuaciones o reglas lógicas). Se enfoca en la
 viabilidad más que en la optimización, buscando soluciones que satisfagan todas las restricciones definidas. Utilizada para resolver problemas difíciles en áreas
 como planificación, programación de tareas, diseño en ingeniería y toma de decisiones. Emplea solucionadores de restricciones, que son algoritmos especializados
-para abordar problemas de satisfacción y optimización de restricciones. La programación de restricciones ha sido identificada por la ACM como una dirección estratégica
+para abordar problemas de satisfacción y optimización de restricciones. La programación de restricciones ha sido identificada por la ACM(Association for Computing Machinery) como una dirección estratégica
 en la investigación en computación desde la década de 1901. En la década de los 60s comienza a formalizarse esta técnica, dando paso a hitos importantes. En 1960
-se desarrolla el algoritmo DPLL (Davis-Putnam-Logemann-Loveland)\hyperref[sec:35]{[25]}, sentando bases lógicas para la resolución de CSPs(programación de satisfacción de restricciones), 1977, Alan K. Mackworth
+se desarrolla el algoritmo DPLL (Davis-Putnam-Logemann-Loveland)\hyperref[sec:35]{[25]}, sentando bases lógicas para la resolución de CSPs(Constaints Satisfaction Problems, por su siglas en inglés), 1977, Alan K. Mackworth
 desarrolla el algoritmo AC-3, que se convierte en el estándar para la consistencia de arco \hyperref[sec:36]{[26]}. Para 1980s, se lograron avances en búsqueda y optimización, en 1980s Rina
 Dechter y Judea Pearl introducen el backjumping(salto hacia atrás) para reducir búsquedas redundantes, entre 1980 y 1990 se desarrollan heurísticas para optimizar
 casos especiales. En 1987, Jaffar y Lassez desarrollan CLP(FD) (Constraint Logic Programming over Finite Domains) \hyperref[sec:37]{[27]}, sentando bases numéricas para CSPs. A partir del siglo XXI se comenzaron a usar
 enfoques dirigidos principalmente al campo del aprendizaje de máquinas para estimar valores de las variables o restricciones innecesarias. \\
 
-A continuación se darán un conjunto de definición con vista a enunciar uno de los algoritmos más importantes de la técnica. \\
+A continuación se darán un conjunto de definiciones con vistas a enunciar uno de los algoritmos más importantes de la técnica. \\
 
 Un CSP se define como una tupla $(C,X,D)$ donde $C$ es el conjunto de restrincciones, $X$ es el de variable a asignarle un valor que cumpla con las $C_i$ resticciones 
 sobre el dominio $d_i$, y $D={d_0,d_1,...,d_n}$ siendo $n=|X|$ \\
 
-\textbf{Definición de proyección}: Sea una secuencia de variables $X := x_1,..., x_n$ definidas respectivamente
+\textbf{Definición 3.} Sea una secuencia de variables $X := x_1,..., x_n$ definidas respectivamente
 para los dominios $D_1,..., D_n$ y sea un elemento $d:= (d_1,..., d_n)$ de $D_1 \times \cdots \times$
 $D_n$ y una subsecuencia $\chi:= x_{i_1},..., x_{i_m}$ de $X$. Se denota la secuencia
 $(d_{i_1},..., d_{i_m})$ por $d[\chi]$ y se define como la proyección de $d$ sobre $\chi$. \\
 
 
-\textbf{Definición de unión}: Sean los CSPs $P_0, \ldots, P_m$, donde $m \geq 1$, y una secuencia $X$ de sus variables comunes. Se dice que la unión 
+\textbf{Definición 4.} Sean los CSPs $P_0, \ldots, P_m$, donde $m \geq 1$, y una secuencia $X$ de sus variables comunes. Se dice que la unión 
 de $P_1, \ldots, P_m$ es equivalente a $P_0$ con respecto a $X$ si:
 \[ \{ d[X] \mid d \text{ es una solución para } P_0 \} = \bigcup_{i=1}^m \{ d[X] \mid d \text{ es una solución para } P_i \}. \]
 
 
-\textbf{Definición nodo-consistente}: Sea un CSP $P$, si para cada variable $x$, cada restricción unaria sobre $x$ coincide con el dominio de $x$, se considera
+\textbf{Definición 5.} Sea un CSP $P$, si para cada variable $x$, cada restricción unaria sobre $x$ coincide con el dominio de $x$, se considera
 que $P$ es nodo-consistente. \\
 
-\textbf{Definición arco-consistente}: Sea un CSP $P$, una restricción binaria $C$ sobre las variables $x, y$ con los dominios $D_x$ y $D_y$, es decir, $C \subseteq D_x \times D_y$. 
+\textbf{Definición 6.} Sea un CSP $P$, una restricción binaria $C$ sobre las variables $x, y$ con los dominios $D_x$ y $D_y$, es decir, $C \subseteq D_x \times D_y$. 
 Se dice que $C$ es arco-consistente si cumple que $\forall a \in D_x \, \exists b \in D_y : (a, b),(b,a) \in C$  $P$ y todas sus restricciones binarias son 
 arco-consistentes. \\
 
 
-\textbf{Definición de Hiperarco-Consistencia}: Sea \( C(x_1, x_2, \dots, x_k) \) una restricción que involucra las variables \( x_1, x_2, \dots, x_k \), cada una con su dominio \( D(x_i) \). Se dice
+\textbf{Definición 7.} Sea \( C(x_1, x_2, \dots, x_k) \) una restricción que involucra las variables \( x_1, x_2, \dots, x_k \), cada una con su dominio \( D(x_i) \). Se dice
  que la restricción \( C \) es \textbf{hiperarco consistente} si, para cada variable \( x_i \) (con \( i \in \{1,2,\dots,k\} \)) y para cada valor 
  \( a \in D(x_i) \), existe una asignación para las demás variables, es decir, existen valores
 \[
@@ -210,8 +210,7 @@ C(a_1, a_2, \dots, a_{i-1}, a, a_{i+1}, \dots, a_k).
 En otras palabras, cada valor \( a \) en el dominio de \( x_i \) puede extenderse a una solución parcial de la restricción \( C \) asignando apropiadamente valores a las otras variables implicadas. \\
 
 
-El algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^3)$ donde $e$ es el número de arcos y $d=|D|$, siendo $D$ el dominio de definición de las variables, sin embargo, puede mejorarse a $O(ed^2)$. \\ \\
-\textbf{ Consistencia de arco }: Un arco $X \rightarrow Y$ es consistente si y solo si para cada $X$ en el origen existe algún valor $Y$ en el destino que puede ser asignado sin violar ninguna restricción \\
+El algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^3)$ donde $e$ es el número de arcos y $d=|D|$, siendo $D$ el dominio de definición de las variables, sin embargo, puede mejorarse a $O(ed^2)$. \\
 
 \textbf{AC-3} opera sobre restricciones, variables y dominios de variables. El algoritmo funciona de la siguiente manera:
 
@@ -227,20 +226,20 @@ El algoritmo probablemente más usado en este campo, ARC-3 de complejidad $O(ed^
 }
 \BlankLine
 
-\textbf{// Paso 2: Crea la lista de trabajo con los arcos del grafo de restricciones}\\
+\textbf{// Paso 2: Crea la cola de trabajo con los arcos del grafo de restricciones}\\
 Crea una lista de trabajo $WL$ con todos los arcos $(x, y)$ en el grafo de restricciones\;
 \BlankLine
 
 \textbf{// Paso 3: Procesa los arcos mientras la lista de trabajo no esté vacía}\\
 \While{$WL$ no esté vacía}{
-    Selecciona y elimina un arco $(x, y)$ de la lista de trabajo $WL$\;
+    Selecciona y elimina un arco $(x, y)$ de la cola de trabajo $WL$\;
     \BlankLine
     \textbf{// Paso 4: Reduce el dominio de $x$ basándose en las restricciones con $y$}\\
     Reduce el dominio de $x$ usando las restricciones entre $x$ y $y$\;
     \If{el dominio de $x$ se reduce}{
         \textbf{// Agrega los arcos relacionados a la lista de trabajo}\\
         \ForEach{arco $(z, x)$ con $z \neq y$}{
-            Agrega $(z, x)$ a la lista de trabajo $WL$\;
+            Agrega $(z, x)$ a la cola de trabajo $WL$\;
         }
     }
 }

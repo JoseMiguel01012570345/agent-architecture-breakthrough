@@ -211,16 +211,16 @@
     de entrada y salida. El agente coordinador siempre encuentra una solución correcta dada la entrada y salida de la red de las infinitas posibles, por tanto se 
     puede decir que este agente converge a la ¨solución correcta¨. En los siguiente se asume que el agente coordinador converge al mínimo global: \\
 
-    El problema de encontrar $F:X \rightarrow Y$ se ha reducido $\underset{G}{\min}(|F(X)-Y|) \leq \epsilon$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
+    El problema de encontrar $F:X \rightarrow Y$ se ha convertido $\underset{G}{\min}(||F(X)-Y||)$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
     este el agente corrector converge a $G$  entonces la red converge a $Y$ dado $X$.
 
 
  \section*{Análisis de complejidad}
 
-    A continuación se analisa la complejidad de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
+    A continuación se analiza la complejidad temporal de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
 
-    Los agentes de entrada y salida tienen complejidad $N \geq O(FoT) $ siendo $N$ el número de estos agentes el agente en cuestión, esta consideración 
-    sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que de una entrada y devuelva una salida, la 
+    Los agentes de entrada y salida tienen complejidad $N \geq O(FoT) $ siendo $N$ el número de estos agentes en cuestión, esta consideración 
+    sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que recibe como entrada y devuelva una salida, la 
     razón principal de la cota inferior es porque $T$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
     de entrada y salida, es decir $O(N)$. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
     El algoritmo en su totalidad tiene complejidad: 
