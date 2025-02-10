@@ -3,6 +3,7 @@ import intervalar_functions
 import coordinator as coord
 import agent_corrector as aget_correct
 import compartimental_models
+import spline
 
 # =============================================================================
 # Global constants
@@ -38,7 +39,7 @@ def initialize_agents(number_agents, number_input_agents):
     import random
 
     list_of_input_agents = []
-    for i in range(number_input_agents):
+    for i in range(number_input_agents):  # determine output agents
         rand_index = random.randint(0, number_agents)
         while rand_index in list_of_input_agents:
             rand_index = random.randint(0, number_agents)
@@ -46,11 +47,20 @@ def initialize_agents(number_agents, number_input_agents):
         list_of_input_agents.append(rand_index)
 
     i = 0
+    intervalar_Functions = []
+    intervalar_inverted_functions = []
     while i < number_agents:
 
-        intervalar_Functions = intervalar_functions.intervalar_functions_avaliable[i][0]
-        intervalar_inverted_functions = (
-            intervalar_functions.intervalar_functions_avaliable[i][1]
+        intervalar_Functions.append(
+            intervalar_functions.intervalar_functions_avaliable[
+                i % len(intervalar_functions.intervalar_functions_avaliable)
+            ][0]
+        )
+
+        intervalar_inverted_functions.append(
+            intervalar_functions.intervalar_functions_avaliable[
+                i % len(intervalar_functions.intervalar_functions_avaliable)
+            ][1]
         )
         i += 1
 
@@ -72,7 +82,7 @@ def initialize_agents(number_agents, number_input_agents):
                 inverted_function=intervalar_inverted_functions[index],
             )
 
-        agents.append(agents)
+        agents.append(agent)
 
     return agents
 
@@ -118,17 +128,21 @@ def main_process(dataset, max_iterations):
     """
     # Initialize agents
     agents = initialize_agents(
-        number_agents=len(dataset[0]["X"][0]) + len(dataset[0]["Y"]),
+        number_agents=len(dataset[0]["X"]) + len(dataset[0]["Y"]),
         number_input_agents=len(dataset[0]["Y"]),
     )
-    coordinator = initialize_coordinator_agent()
+
+    model = spline.model()
+    coordinator = initialize_coordinator_agent(model=model)
     corrector = initialize_corrector_agent(coordinator=coordinator)
     convergence_threshold = 0.01
 
     results = []
     # For each (X, Y) pair in the dataset:
-    for X, Y in dataset:
+    for data in dataset:
 
+        X = data["X"]
+        Y = data["Y"]
         iteration = 1
         converged = False
         stack_edges = []
