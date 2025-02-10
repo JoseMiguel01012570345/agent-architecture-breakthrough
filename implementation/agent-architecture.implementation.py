@@ -1,18 +1,21 @@
 from agent_definition import Agent
+import intervalar_functions
+import coordinator as coord
+import agent_corrector as aget_correct
+import compartimental_models
 
 # =============================================================================
 # Global constants
 # =============================================================================
-ACTIVATION_THRESHOLD = 0.5  # Example threshold for activation
 
 
-def no_arcs_exist(adjacency_matrix):
+def no_arcs_exist(adjacency_matrix, umbral=0.02):
     """
     Return True if the given adjacency_matrix indicates that no arcs exist.
     """
     if adjacency_matrix is None:
         return True
-    if isinstance(adjacency_matrix, list) and len(adjacency_matrix) == 0:
+    if any([element > 0 for element in adjacency_matrix]):
         return True
     return False
 
@@ -21,128 +24,82 @@ def calculate_max_difference(target_outputs, current_outputs):
     """
     Calculate the maximum absolute difference between target and current outputs.
     """
-    differences = [abs(t - c) for t, c in zip(target_outputs, current_outputs)]
-    return max(differences) if differences else 0
+    differences = [
+        abs(t - c) / len(current_outputs)
+        for t, c in zip(target_outputs, current_outputs)
+    ]
+    return sum(differences) if differences else 0
 
 
-def calculate_error(outputs, Y):
-    """
-    Compute error as the absolute difference between each output and its target Y.
-    """
-    return [abs(o - y) for o, y in zip(outputs, Y)]
-
-
-def get_connected_agents(agent: Agent, adjacency_matrix):
-    """
-    Dummy function: return a list of agents connected to the given agent.
-    In a full implementation, this would examine the adjacency_matrix.
-    """
-    # For simplicity, we return an empty list.
-    return adjacency_matrix[agent.index]
-
-
-def calculate_preconditions(agent, adjacency_matrix):
-    """
-    For each agent connected to 'agent', compute a precondition value.
-    """
-    preconditions = []
-    connected_agents = get_connected_agents(agent, adjacency_matrix)
-    for connected_agent in connected_agents:
-        prev_val = connected_agent.previous_output
-        curr_val = connected_agent.current_output
-        max_val = max(abs(prev_val), abs(curr_val)) + 1e-6
-        precondition = abs(prev_val - curr_val) / max_val
-        preconditions.append(precondition)
-    return preconditions
-
-
-def check_activation_conditions(preconditions):
-    """
-    Return True if all preconditions meet or exceed the activation threshold.
-    """
-    return all(p >= ACTIVATION_THRESHOLD for p in preconditions)
-
-
-def collect_outputs(output_agents):
-    """
-    Collect outputs from the output agents.
-    """
-    return [agent.output for agent in output_agents]
-
-
-def initialize_input_agents():
+def initialize_agents(number_agents, number_input_agents):
     """
     Create and return a list of input agents.
     """
-    # For example, create 3 input agents.
-    return [Agent() for _ in range(3)]
+    import random
+
+    list_of_input_agents = []
+    for i in range(number_input_agents):
+        rand_index = random.randint(0, number_agents)
+        while rand_index in list_of_input_agents:
+            rand_index = random.randint(0, number_agents)
+
+        list_of_input_agents.append(rand_index)
+
+    i = 0
+    while i < number_agents:
+
+        intervalar_Functions = intervalar_functions.intervalar_functions_avaliable[i][0]
+        intervalar_inverted_functions = (
+            intervalar_functions.intervalar_functions_avaliable[i][1]
+        )
+        i += 1
+
+    agents = []
+    for index, function in enumerate(intervalar_Functions):
+
+        agent = None
+        if index in list_of_input_agents:
+            agent = Agent(
+                index=index,
+                function=function,
+                inverted_function=intervalar_inverted_functions[index],
+                isOutput=True,
+            )
+        else:
+            agent = Agent(
+                index=index,
+                function=function,
+                inverted_function=intervalar_inverted_functions[index],
+            )
+
+        agents.append(agents)
+
+    return agents
 
 
-def initialize_output_agents():
-    """
-    Create and return a list of output agents.
-    """
-    # For example, create 2 output agents.
-    return [Agent() for _ in range(2)]
-
-
-def initialize_coordinator_agent():
+def initialize_coordinator_agent(model):
     """
     Create and return a Coordinator agent with a dummy model.
     """
-    model = DummyModel()
-    return Coordinator(model)
+    coordinator = coord.Coordinator(model=model)
+    return coordinator
 
 
-def initialize_corrector_agent():
+def initialize_corrector_agent(coordinator):
     """
     Create and return a Corrector agent.
     """
-    return Corrector()
+    return aget_correct.Corrector(coordinator=coordinator)
 
 
-def initialize_input_agents_with_X(input_agents, X):
+def initialize_input_agents_with_X(agents, X, P):
     """
     Initialize each input agent with the input X.
     """
-    for agent in input_agents:
-        agent.inputs = X
 
-
-def correction_phase(input_agents, output_agents, corrector, stack_edges, Y):
-    """
-    Implements the correction phase.
-    """
-    arc_adjustments = []
-    # First loop: iterate over stored states (stack_edges)
-    for adjacency_matrix, input_agents_saved, output_agents_saved in stack_edges:
-        outputs = [agent.output for agent in output_agents_saved]
-        error = calculate_error(outputs, Y)
-        arc_adjustments.append(
-            corrector.adjust_arcs(error, adjacency_matrix, input_agents, output_agents)
-        )
-
-    # Reset agents’ defaults
-    for agent in input_agents:
-        agent.reset_default_outputs()
-    for agent in output_agents:
-        agent.reset_default_inputs()
-
-    start = 0
-    # Second loop: iterate over stored states again
-    while start < len(stack_edges):
-        adjacency_matrix, input_agents_saved, output_agents_saved = stack_edges[start]
-        outputs = [agent.output for agent in output_agents_saved]
-        error = calculate_error(outputs, Y)
-        arc_adjustments.append(
-            corrector.adjust_arcs(error, adjacency_matrix, input_agents, output_agents)
-        )
-        # Update input agents with current output from output agents
-        for i, agent in enumerate(input_agents):
-            if i < len(output_agents):
-                agent.inputs = output_agents[i].output
-        start += 1
-    return arc_adjustments
+    for agent in agents:
+        if not agent.isOutput:
+            agent.FoG(X, P)
 
 
 # =============================================================================
@@ -160,63 +117,60 @@ def main_process(dataset, max_iterations):
         results: collected outputs from the output agents.
     """
     # Initialize agents
-    input_agents = initialize_input_agents()
-    output_agents = initialize_output_agents()
+    agents = initialize_agents(
+        number_agents=len(dataset[0]["X"][0]) + len(dataset[0]["Y"]),
+        number_input_agents=len(dataset[0]["Y"]),
+    )
     coordinator = initialize_coordinator_agent()
-    corrector = initialize_corrector_agent()
+    corrector = initialize_corrector_agent(coordinator=coordinator)
     convergence_threshold = 0.01
 
     results = []
     # For each (X, Y) pair in the dataset:
     for X, Y in dataset:
-        initialize_input_agents_with_X(input_agents, X)
+
         iteration = 1
         converged = False
-        stack_edges = []  # to store states (arc matrices and agents' states)
+        stack_edges = []
+
+        # Reset agents’ defaults
+        for agent in agents:
+            agent.reset_default_outputs()
 
         while iteration <= max_iterations and not converged:
+
             # Step 1: Coordinator determines arcs
             adjacency_matrix = coordinator.generate_arcs(X)
+
+            initialize_input_agents_with_X(agents=agents, X=X, P=adjacency_matrix)
+
             # Save current state (using shallow copies for demonstration)
-            stack_edges.append(
-                (adjacency_matrix, list(input_agents), list(output_agents))
-            )
+            stack_edges.append((adjacency_matrix, agents))
 
             # Step 2: Check termination condition
             if no_arcs_exist(adjacency_matrix):
                 converged = True
                 break
 
-            # Step 3: Agent computation phase
-            all_agents = input_agents + output_agents
-            for agent in all_agents:
-                agent.preconditions = calculate_preconditions(agent, adjacency_matrix)
-                if check_activation_conditions(agent.preconditions):
-                    agent.output = agent.FoG(agent.preconditions, agent.inputs)
-
-            # Step 4: Check convergence
+            # Step 3: Check convergence
             # Here we assume the target outputs are provided as Y (a list)
-            current_outputs = [agent.output for agent in output_agents]
+            current_outputs = [
+                agent.current_output for agent in agents if agent.isOutput
+            ]
             delta = calculate_max_difference(Y, current_outputs)
             if delta < convergence_threshold:
                 converged = True
                 break
 
-            # Update each agent's inputs to its current output
-            for agent in all_agents:
-                agent.inputs = agent.output
-
             iteration += 1
 
         # Final output collection
-        current_results = collect_outputs(output_agents)
-        results.append(current_results)
+
+        results.append(current_outputs)
 
         # If not converged, run the correction phase and update the coordinator
         if not converged:
-            arc_adjustments = correction_phase(
-                input_agents, output_agents, corrector, stack_edges, Y
-            )
+            arc_adjustments = corrector(agents, stack_edges, Y)
             coordinator.update(arc_adjustments)
 
     return results
@@ -228,8 +182,8 @@ def main_process(dataset, max_iterations):
 if __name__ == "__main__":
     # Create a dummy dataset of (X, Y) pairs.
     # Here, X might be a number (or a vector) and Y is a list of target outputs.
-    dataset = [(10, [5, 7]), (20, [15, 17])]
-    max_iterations = 5
+    dataset = compartimental_models.dataset_generator()
+    max_iterations = 10000
 
     final_results = main_process(dataset, max_iterations)
     print("Final results:", final_results)
