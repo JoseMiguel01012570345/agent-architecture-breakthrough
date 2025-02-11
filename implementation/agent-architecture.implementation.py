@@ -3,7 +3,8 @@ import intervalar_functions
 import coordinator as coord
 import agent_corrector as aget_correct
 import compartimental_models
-import spline
+import model
+from scipy.interpolate import RBFInterpolator
 
 # =============================================================================
 # Global constants
@@ -87,11 +88,13 @@ def initialize_agents(number_agents, number_input_agents):
     return agents
 
 
-def initialize_coordinator_agent(model):
+def initialize_coordinator_agent(model, X_init, Y_init):
     """
     Create and return a Coordinator agent with a dummy model.
     """
+
     coordinator = coord.Coordinator(model=model)
+    coordinator.update([X_init, Y_init])
     return coordinator
 
 
@@ -127,13 +130,25 @@ def main_process(dataset, max_iterations):
         results: collected outputs from the output agents.
     """
     # Initialize agents
+    n_in = len(dataset[0]["X"])
+    n_out = len(dataset[0]["Y"])
     agents = initialize_agents(
-        number_agents=len(dataset[0]["X"]) + len(dataset[0]["Y"]),
-        number_input_agents=len(dataset[0]["Y"]),
+        number_agents=n_in + n_out,
+        number_input_agents=n_in,
     )
 
-    model = spline.model()
-    coordinator = initialize_coordinator_agent(model=model)
+    rbf_interpolator_model = model.model(Ninput=n_in, Noutput=n_in**2)
+
+    Y_init = [
+        [dataset[0]["X"] for x in dataset[0]["X"]],
+        [dataset[1]["X"] for x in dataset[1]["X"]],
+    ]
+
+    coordinator = initialize_coordinator_agent(
+        model=rbf_interpolator_model,
+        X_init=[dataset[0]["X"], dataset[1]["X"]],
+        Y_init=Y_init,
+    )
     corrector = initialize_corrector_agent(coordinator=coordinator)
     convergence_threshold = 0.01
 
@@ -143,6 +158,7 @@ def main_process(dataset, max_iterations):
 
         X = data["X"]
         Y = data["Y"]
+
         iteration = 1
         converged = False
         stack_edges = []
