@@ -120,21 +120,6 @@
     \end{algorithm}
  
  \begin{algorithm}[H]
- \caption{calculate\_preconditions}
- \KwIn{agent, adjacency\_matrix}
- \KwOut{preconditions}
- preconditions $\leftarrow$ [ ]\;
- \ForEach{connected\_agent in get\_connected\_agents(agent, adjacency\_matrix)}{
-     prev\_val $\leftarrow$ connected\_agent.previous\_output\;
-     curr\_val $\leftarrow$ connected\_agent.current\_output\;
-     max\_val $\leftarrow \max\bigl(|\text{prev\_val}|,\, |\text{curr\_val}|\bigr) + 1\times10^{-6}$\;
-     precondition $\leftarrow \displaystyle \frac{|\text{prev\_val} - \text{curr\_val}|}{\text{max\_val}}$\;
-     preconditions.append(precondition)\;
- }
- \Return preconditions\;
- \end{algorithm} \\
- 
- \begin{algorithm}[H]
  \caption{check\_activation\_conditions}
  \KwIn{preconditions}
  \KwOut{Boolean}
@@ -171,7 +156,7 @@
              \If{cumulative\_effect == residual}{
                  \textbf{break}\;
              }
-             updated\_weight $\leftarrow$ true
+             updated\_weight $\leftarrow$ true \\
              remaining $\leftarrow$ residual $-$ cumulative\_effect\;
              adjusted\_weight $\leftarrow$ remaining / last\_agent.output\;
              adjustments.append$\bigl((\text{last\_agent},\, \text{adjusted * last\_agent.output})\bigr)$\;
@@ -219,17 +204,17 @@
 
     A continuación se analiza la complejidad temporal de cada componente del sistema y luego se sintetiza para conseguir la complejidad total. \\
 
-    Los agentes de entrada y salida tienen complejidad $N \geq O(FoT) $ siendo $N$ el número de estos agentes en cuestión, esta consideración 
+    Los agentes de entrada y salida tienen complejidad $N^2 \geq O(FoT) $ siendo $N$ el número de estos agentes en cuestión, esta consideración 
     sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que recibe como entrada y devuelva una salida, la 
-    razón principal de la cota inferior es porque $T$ se computa en $O(N)$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
-    de entrada y salida, es decir $O(N)$. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
+    razón principal de la cota inferior es porque $T$ se computa en $O(N)$ por cada agente $i \in N$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
+    de entrada y salida, es decir $O(N)$ por tanto tiene complejidad temporal $O(N^2)$ con respecto al número de agentes. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
     El algoritmo en su totalidad tiene complejidad: 
     \begin{center}
         
         \begin{equation*}
                 
-                |D|(C( \max(O(F o T )) + O(f) + O(N)) + O(N)) \\
-                = O(|D|C( \max(O(F o T )) + O(f) + O(N)))\\
+                |D|(C( O(N) * \max(O(F o T )) + O(f) + 2 * O(N^2) )) \\
+                = O(|D|C( \max(O(F o T )) + O(f) + O(N^2)))\\
 
         \end{equation*}
 

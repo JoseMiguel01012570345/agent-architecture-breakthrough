@@ -76,25 +76,8 @@
             \item  $B \rightarrow A$, $B$ 'escucha' de $A$
         \end{itemize}
 
-        Si $A$ escucha de $P^n=[B^n,C^n,...,D^n]$ entonces las precondiciones de $A$ son $P=\lceil p_0 \rceil \lor \lceil p_1 \rceil \lor...\lor \lceil p_n \rceil$ donde:
-
-        \begin{equation*}
-            p_0=  \frac{|B^{n-1}-B^n|}{|max(B^{n-1},B^n)|+1}
-        \end{equation*}
-        \begin{equation*}
-            p_1= \frac{|C^{n-1}-C^n|}{|max(C^{n-1},C^n)|+1}
-        \end{equation*}
-        \begin{center}
-            .
-            .
-            .
-        \end{center}
-
-        \begin{equation*}
-            p_n=  \frac{|U^{n-1}-U^n|}{|max(U^{n-1},U^n)|+1}
-        \end{equation*}
-
-        Las expresiones $B^n,C^n,U^n$ se refieren al valor de los agentes $B,C,U$ en la iteración $k$. Es preciso notar que $p_i \in [0,1]$ \\
+        Si $A$ escucha de $P^n=[A_0^n,A_1^n,...,A_k^n]$ entonces las precondiciones de $A$ son $P=\lceil p_0 - \frac{1}{2} \rceil \lor \lceil p_1 - \frac{1}{2} \rceil \lor \dots \lor \lceil p_n - \frac{1}{2} \rceil$ donde: 
+        $p_i=A_k$. Las expresiones $A_0^n,A_1^n,A_k^n$ se refieren al valor de las ponderaciones de los arcos $A_0,A_1,\dots,A_n$ en la iteración $k$. Es preciso notar que $p_i \in [0,1]$ \\
 
         Como última observación se dice que si en un instante $k$ no hay arcos entre agentes, entonces hemos convergido a un resultado final.
 
