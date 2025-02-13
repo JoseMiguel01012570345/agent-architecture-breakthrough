@@ -1,14 +1,14 @@
 \chapter{Resultados y Validación}\label{chapter:resultsValidation}
 \label{sec:17}
 
-    El objetivo de esta sección radica en demostrar el uso de este sistema y validarlo. Se usó el modelo SIR, SI para evaluar el modelo, para ello se estimaron 120 días
+    El objetivo de esta sección radica en demostrar el uso de este sistema y validarlo. Se usaron los modelo SIR, SI clásicos para evaluar el modelo. Para ello se estimaron 120 días
      de epidemia con diferentes parámetros. Se añadió error a las estimaciones para conseguir intervalos de incertidumbre. \\
 
         \subsection*{Presentación y análisis de los resultados obtenidos a partir del algoritmo propuesto}  
 
         Modelo SIR: Divide la población en tres grupos: Susceptibles (S), Infectados (I) y Recuperados (R), los supuestos del modelo SIR son población cerrada, no hay 
         nacimientos, muertes ni migración (\(N = S + I + R = \text{constante}\)). Contactos homogéneos, todos los individuos interactúan entre sí de manera uniforme. 
-        Inmunidad permanente, los recuperados no vuelven a ser susceptibles. Tasas constantes, La tasa de transmisión (\(\beta\)) y de recuperación (\(\gamma\)) 
+        Inmunidad permanente, los recuperados no vuelven a ser susceptibles. La tasa de transmisión (\(\beta\)) y de recuperación (\(\gamma\)) 
         son constantes. \\
         
         Variables y Parámetros:
@@ -26,22 +26,22 @@
         \textbf{Sistema de ecuaciones diferenciales ordinarias (EDOs):}
         \begin{enumerate}
             
-            \item  Tasa de cambio de los susceptibles:
+            \item  Ecuación que describe la variación de la población de Susceptibles en el tiempo:
                \[
                \frac{dS}{dt} = -\frac{\beta}{N} S I
                \]
-            \item Tasa de cambio de los infectados:
+            \item Ecuación que describe la variación de la población de Infectados en el tiempo:
                   \[
                   \frac{dI}{dt} = \frac{\beta}{N} S I - \gamma I
                   \]
-            \item Tasa de cambio de los recuperados:
+            \item Ecuación que describe la variación de la población de Recuperados en el tiempo:
                 \[
                 \frac{dR}{dt} = \gamma I
                 \]
                
         \end{enumerate}
 
-        Las siguientes figuras muestran el intervalo de los valores $S_0,I_0,R_0$ de una epidemia que se propaga por 120 dias. \\
+        Las siguientes figuras muestran el intervalo de los valores $S_0,I_0,R_0$ de una epidemia que se propaga por 120 días. \\
 
         \begin{center}
             \includegraphics[width=0.6\textwidth]{images/plot0.png}
@@ -149,26 +149,26 @@
 
     \textbf{Agente coordinador:} \\
 
-    El agente coordinador usado fue random forest que es una colección de árboles predictores, donde cada árbol depende del valor de un vector aleatorio probado
-     independientemente y con la misma distribución para cada uno. Este algoritmo combina las ideas del bagging (bootstrap aggregating) y la selección aleatoria 
-     de atributos (random subspace) para construir una colección diversa e independiente de árboles. 
+    El agente coordinador usado fue bosque aleatorio(random forest) que es una colección de árboles predictores, donde cada árbol depende del valor de un vector aleatorio probado
+     independientemente y con la misma distribución para cada uno. Este algoritmo combina las ideas del encajonado(bagging), y la selección aleatoria 
+     de atributos para construir una colección diversa e independiente de árboles. 
      
     Funcionamiento: Se selecciona un subconjunto aleatorio tanto del conjunto total de datos como del conjunto total de características o atributos disponibles. 
-    Esto se hace mediante técnicas como el bootstrapping (muestreo con reemplazo). Para cada muestra seleccionada, se construye un árbol individual usando solo 
+    Esto se hace mediante técnicas como el muestreo con reemplazo (bootstrapping). Para cada muestra seleccionada, se construye un árbol individual usando solo 
     una porción aleatoria del conjunto completo de características disponibles en cada nodo interno. Esto ayuda a reducir el riesgo sobreajuste (overfitting) al 
     aumentar la diversidad entre los diferentes modelos. Cada nuevo dato que se desee predecir pasa por todos los árboles individuales generados durante el 
     entrenamiento. En clasificación, el resultado final es determinado por votación mayoritaria entre todos los resultados obtenidos; mientras que en regresión, 
     se toma el promedio aritmético. \\
 
-    Ventajas: Los Random Forests suelen ofrecer resultados más precisos que otros métodos debido a su capacidad para combinar múltiples predicciones. Al utilizar 
-    subconjuntos aleatorios tanto en datos como características, reduce significativamente el riesgo sobreajuste. Pueden manejar variables continuas y categóricas 
+    Ventajas: Los bosques aleatorios suelen ofrecer resultados más precisos que otros métodos debido a su capacidad para combinar múltiples predicciones. Al utilizar 
+    subconjuntos aleatorios tanto en datos como características, reduce significativamente el riesgo de sobreajuste. Pueden manejar variables continuas y categóricas 
     simultáneamente. Comparado con otros métodos avanzados, requiere menos ajustes manuales complejos. \\
     
     Sin embargo, también tiene algunas desventajas como alto costo computacional especialmente con grandes conjuntos y dificultad interpretativa debido a su 
     complejidad interna. \\
 
     El motivo principal de su selección radica en su uso sencillo y adaptabilidad a la entrada de un vector $k$ de parámetros y $k^2$ salidas, puesto que el problema 
-    de encontrar el grafo $G$ se puede pensar como un problema de clasificación en el que se tiene $k^2$ clases. También se comprobó que epíricamente que sus resultados
+    de encontrar el grafo $G$ se puede pensar como un problema de clasificación en el que se tiene $k^2$ clases. También se comprobó epíricamente que sus resultados
     eran numéricamente estables, algo que resultó muy importante para este desarrollo. \\
 
 
@@ -176,32 +176,31 @@
 
     Si bien los intervalos ofrecen una forma de atacar la incertidumbre en los datos, es un desafío para calcular $f(X)$ siendo $X$ un intervalo en el cual no 
     necesariamente se define la función, es decir, si un gente $A$ recibe una entrada $X$ esta entrada puede no ser reconocible por este, por tanto se requiere 
-    implementar herísticas para mantener la estabiliada numérica y la armonía del sistema(que no termine en excepción). Muchas de las técnicas usadas provocaron 
+    implementar heurísticas para mantener la estabiliadad numérica y la armonía del sistema(que no termine en excepción). Muchas de las técnicas usadas provocaron 
     inestabiliada en la solución calculada por estos agentes y se usaron como dato de entrenamiento para que el agente coordinador determine que los datos $X$ no 
     son reconocibles por el agente $A$. \\
 
     \textbf{El entrenamiento:}
 
-    El sistema iteró solo una época por los datos de entrenamiento con una constante de hasta 100 iteraciones por cada dato para devolver una salida, se consideraron un total de 150 epidemias. 
-    A continuación se muestran gráficas para ilustrar este proceso. El numero total de iteraciones fue de 15000 consiguiendose el siguiente cronograma de salidas.
+    El sistema iteró solo una época por los datos de entrenamiento con una constante de hasta 100 iteraciones por cada dato para devolver una salida, se consideraron
+    un total de 150 epidemias y se aplicó la distancia euclicidiana como norma. El número total de iteraciones fue de 15000, consiguiéndose el siguiente cronograma de salidas.
 
     \begin{center}
         
-        \includegraphics[width=0.6\textwidth]{images/1.png}
+        \includegraphics[width=0.8\textwidth]{images/1.png}
 
-        \includegraphics[width=0.6\textwidth]{images/2.png}
+        \includegraphics[width=0.8\textwidth]{images/2.png}
         
-        \includegraphics[width=0.6\textwidth]{images/3.png}
         \begin{center}
-            fig.7 Comparación entre la salida espereada y la obtenida
+            fig.7 Comparación entre la salida esperada y la obtenida
         \end{center} 
 
 \end{center}
 
 Como se aprecia hay una reduccion drástica de la longitud de dígitos devueltos en los parámetros gamma y beta, lo que sugiere que, con más computación se logren 
-mejores cotas. Para este resultado para lograr este resutado se destinaron veinte minutos de computación, sin embargo los escasos resultados muestran la increible 
-complejidad del modelo de regresión utilizado, sin embargo la predición de datos es considerablemente mas rápida, por lo tanto con este modelo tenemos buenos tiempo 
-y resultado optimistas con respecto a la predicción, aunque el entrenamiento puede llegar a ser computacionalmente intenso a medida que le introduscamos mas datos de entrada.
+mejores cotas. Para lograr este resutado se destinaron veinte minutos de cómputo, los escasos resultados muestran la increible 
+complejidad del modelo de regresión utilizado, la predición de datos es considerablemente más rápida, por lo tanto con este modelo tenemos "buenos" tiempo 
+y resultado optimistas con respecto a la predicción, aunque el entrenamiento puede llegar a ser computacionalmente intenso a medida que se le introduzcan datos de entrada.
 
 \textbf{Modelo SI} \\
 
@@ -214,16 +213,18 @@ El modelo SI (Susceptible-Infectado) en este modelo, los individuos de la poblac
 Supuestos del Modelo SI:La población es cerrada (no hay nacimientos, muertes ni migración), no hay recuperación ni inmunidad (los individuos infectados permanecen 
 infectados para siempre), la enfermedad se transmite por contacto entre susceptibles e infectados. El modelo se describe mediante un sistema de ecuaciones diferenciales: \\
 
-Tasa de cambio de los susceptibles (S): \\
+Ecuación que describe la variación de la población de Susceptibles en el tiempo (S): \\
    \[
    \frac{dS}{dt} = -\beta \cdot S \cdot I
    \]
-   Donde:
-   - \( \beta \) es la tasa de transmisión (probabilidad de contagio por contacto).
-   - \( S \) es el número de susceptibles.
-   - \( I \) es el número de infectados.
+   Donde: \\
+   \begin{itemize}
+    \item \( \beta \) es la tasa de transmisión (probabilidad de contagio por contacto).
+    \item \( S \) es el número de susceptibles.
+    \item \( I \) es el número de infectados.
+    \end{itemize}
 
-Tasa de cambio de los infectados (I):\\
+   Ecuación que describe la variación de la población de Infectados en el tiempo (I):\\
    \[
    \frac{dI}{dt} = \beta \cdot S \cdot I
    \]
@@ -266,8 +267,8 @@ Número reproductivo básico (\( R_0 \)):
 
 \end{center}
 
-Al igual que con el modelo SIR los agentes han ido mejorando sus capacidades de predicción como se mostrara en la siguiente tabla, sin embargo el mínimo se consigue en 
-$\beta=55015123$, siendo valor $\beta$ a aproximar igual a $0.009$. 
+Al igual que con el modelo SIR los agentes han ido mejorando sus capacidades de predicción como se muestran en la siguiente tabla, sin embargo el mínimo se consigue en 
+$\beta=55015123$, siendo el valor real $\beta= 0.009$. 
 
 \begin{center}
      
@@ -279,6 +280,7 @@ $\beta=55015123$, siendo valor $\beta$ a aproximar igual a $0.009$.
 \end{center}
 
 
-Esta prueba al igual que la anterior nos demuestra que el modelo es capaz de mejorar con cada generación de datos que ocurre sin embargo el modelo usado 
-para el agente coordinador no converge a minimos globales, por tanto nunca converge al grafo de conexiones entre agentes necesario para minimizar completamente la 
-norma de la diferencia, además el costo computacional es significativo.
+Esta prueba al igual que la anterior demuestra que el modelo es capaz de mejorar con cada generación de datos. Sin embargo el modelo usado 
+para el agente coordinador no converge a mínimos globales, por tanto nunca converge al grafo de conexiones entre agentes, necesario para minimizar completamente la 
+norma, además el costo computacional es significativo. Otro punto importante a destacar es que el regresor usado en el agente coordinador no considera 
+las restricciones de arco entre dos agentes, lo cual pudo llevar a inestabilidad numérica y de convergencia.

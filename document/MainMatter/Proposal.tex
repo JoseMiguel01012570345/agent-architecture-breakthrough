@@ -2,7 +2,8 @@
 
 \label{sec:14}
 
-        En esta capitulo se abordarán aspectos referentes a la formulación matemática como un problema de optimización y se identificarán las principales dificultades a enfrentar tanto en el problema de estimación de parámetros como en la propuesta solución. A su vez se propone la arquitectura de agentes.
+        En esta capítulo se abordarán aspectos referentes a la formulación matemática como un problema de optimización y se identificarán las principales 
+        dificultades a enfrentar tanto en el problema de estimación de parámetros como en la propuesta solución. A su vez, se propone la arquitectura de agentes.
 
         \subsection*{ Modelo matemático}
 
@@ -70,7 +71,7 @@
 
         Se define el conjunto de acciones que puede tomar el agente donde cada acción puede ser refinada a un conjunto potencialmente infinito de acciones. Es decir, sea $F(P,X)=Z$, entonces $Z$ es una acción a tomar por el agente, donde $P$ son las precondiciones y $X$ los valores de entrada del agente \\
 
-        En el segundo punto se requiere que los agentes deben saber parar las iteraciones puesto que pueden darse ciclos, se toman cotas superiores de iteración. Si los agentes no paran llegado este número, se devuelve el resultado generado hasta ese momento. Este método es robusto para detener las iteraciones, más adelante se verá un método iterativo que asegura la convergencia de las iteraciones. \\
+        En el segundo punto se requiere que los agentes deben saber parar las iteraciones puesto que pueden darse ciclos, por lo que se toman cotas superiores de iteración. Si los agentes no paran llegado este número, se devuelve el resultado generado hasta ese momento. Este método es robusto para detener las iteraciones, más adelante se verá un método iterativo que asegura la convergencia de las iteraciones. \\
 
         Para atacar el punto tres es necesario modelar la red de arcos entre agentes. Sea $M$ el número de agentes, si dos agentes $A$ y $B$ están conectados, entonces ocurren una de las siguientes condiciones:
 
@@ -86,7 +87,7 @@
 
     \subsection*{Arquitectura de Agentes Cooperativos}
 
-        Antes de saltar sobre los detalles de la arquitectura es necesario precisar que la arquitectura propuesta se basa en una red de agentes donde cada uno tiene una funcionalidad específica y se entrena para mejorar sus resultados. Notar que este entrenamiento es supervisado. \\
+        Antes de referirnos a los detalles de la arquitectura es necesario precisar que la estrategia propuesta se basa en una red de agentes donde cada uno tiene una funcionalidad específica y se entrena para mejorar sus resultados. Notar que este entrenamiento es supervisado. \\
 
         La arquitecta está divida en cuatro agentes: los agentes de entrada, los agentes de salida, agente coordinador de acciones y el agente corrector de acciones. Lo siguiente asume que la función tiene la forma $R^n \xrightarrow{f} R^m$. \\
 
@@ -95,11 +96,11 @@
 
         Agentes de salida: Existe un agente de salida por cada parámetro de salida estos agentes son los responsables de escuchar de los agentes de entrada y devolver la salida.
         Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoT$ 
-        que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que este la respuesta. Estos agentes se determinan al inicio del entrenamiento.
+        que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que esté la respuesta. Estos agentes se determinan al inicio del entrenamiento.
 
-        Un punto importante a destacar es que la función de $F$ de ambos agentes, es su función característica, es decir, una función que solo implementan ellos y además se exige que sea inversible.
+        Un punto importante a destacar es que la función $F$ de ambos agentes, es su función característica, es decir, una función que solo implementan ellos y además se exige que sea inversible.
 
-        Agente coordinador: Este agente se encarga de resolver en cada $k$-iteración las arcos entre agentes. Este agente recibe como entrada, la entrada a la red 
+        Agente coordinador: Este agente se encarga de definir en cada $k$-iteración los arcos entre agentes. Este agente recibe como entrada, la entrada a la red 
         y devuelve los arcos entre agentes. Si este agente no define arcos entre agentes, el resultado de la red está en el valor de los agentes de salida definidos. Este agente se entrena 
         a partir de los errores cometidos por sus arcos estimados. Este agente puede ser un regresor que sea capaz de recibir una entrada $m$ de parámetros y devolver
          un vector $V$ donde $|V|=(|$ Agentes de Entrada $| + |$ Agente de salida $|)(|$ Agentes de Entrada $| + |$ Agente de salida $| - 1)$ y además $v_i \in [0,1]$.
@@ -107,12 +108,15 @@
           medida de cuando influye en el agente $i$ las decisiones del agente $j$.\\
 
         \textbf{Definición de generación}: Dada una lista $L$ de pares $(x,y)$ se define como generación al $g$-ésimo par $(x,y)$. \\
-
+        
         Por cada generación la red interactúa para dado un vector $X$, devuelva un vector $Y$.\\
-
-        Uso de intervalos \hyperref[sec:24][14]: Se usan intervalos para computar el rango de valores más probables en cada interacción de los agentes. Como hemos dicho anteriormente, cada agente recibe una combinación lineal
+        
+        Uso de intervalos \hyperref[sec:24][14]: Se usan intervalos para calcular el rango de valores más probables en cada interacción de los agentes. Como hemos dicho anteriormente, cada agente recibe una combinación lineal
         que corresponde a la salida de agentes a los que está conectado, es decir $X=[X_0,X_1,...,X_n]$ donde cada $X_i$ es un intervalo. \\
-
+        
+        
+        \textbf{Integración del la problamación de restricciones en la arquitectura} \\
+        
         Regla de la ecuación lineal \hyperref[sec:25][15]:
 
                 $$\frac{\left\langle \sum_{i=1}^{n} a_i x_i = b ; \; x_1 \in D_1, \ldots, x_n \in D_n \right\rangle}
@@ -124,37 +128,38 @@
 
             \[ D'_j := D_j \cap \frac{b - \sum_{i \in [1..n] - \{j\}} int(a_i \cdot D_i)}{a_j}. \]
 
-            Esta regla es aplicada a los números enteros, sin embargo, se puede extender a los números reales, dado que un resultado de la aritmética de intervalos la cual se define en reales.\\
+            Esta regla es aplicada a los números enteros, sin embargo, se puede extender a los números reales, pues es un resultado de la aritmética de intervalos, que se define en números reales, por 
+            otra parte los flotantes representables en una computadora son finitos, por tanto se puede establecer una biyección entre $F_j$ y los números naturales.\\
 
-        Agente corrector: Este agente corrige los arcos generadas por el agente coordinador y las envía al agente coordinador para que este las tome en cuenta en su próxima generación. Recibe como entrada el estado de los agentes de entrada y salida y los arcos entre estos. Este agente actúa una vez que la red pare sus iteraciones. \\
+        Agente corrector: Este agente corrige los arcos generados por el agente coordinador y las envía al agente coordinador para que este las tome en cuenta en su próxima generación. Recibe como entrada el estado de los agentes de entrada y salida y los arcos entre estos. Este agente actúa una vez que la red pare sus iteraciones. \\
 
         Sea $V$ la salida del agente coordinador que codifica la matriz $W$, se calcula la diferencia entre el intervalo esperado y el intervalo de salida de los agentes de salida.
         Como se quiere que la red resuelva el problema en la menor cantidad de interacciones, comenzamos desde la iteración 1 a buscar qué arcos habrían dado la
-        respuesta correcta. Por cada agente de salida buscamos qué o cuales agentes de entrada darian la respuesta correcta.  \\
+        respuesta correcta. Por cada agente de salida buscamos qué o cuales agentes de entrada darían la respuesta correcta.  \\
 
         Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(||F(X)-Y||)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
-        entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[|r-r'|,|r-r'|]$. Tenemos entonces dos posibles casos: \\
+        entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[||r-r'||,||r-r'||]$. Tenemos entonces dos posibles casos: \\
 
-        Caso 1: $[|r-r'|,|r-r'|] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes
-        que no forman parte de la salida. Aquí basta con conectar de forma sucesiva los agentes $X_{k+j}$ con $j=1,2,..n$ hasta que $[|r-r'|,|r-r'|] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ si la relación es de igualdad, hemos encontrado los arcos,
+        Caso 1: $[||r-r'||,||r-r'||] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes
+        que no forman parte de la salida. Aquí basta con conectar de forma sucesiva los agentes $X_{k+j}$ con $j=1,2,..n$ hasta que $[||r-r'||,||r-r'||] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ si la relación es de igualdad, hemos encontrado los arcos,
          si es menor estricto, nos lleva al caso 2.\\
 
-        Caso 2: Si $[|r-r'|,|r-r'|] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ siendo $a_i=1$, entonces solo despejamos uno de los agentes para encontrar el peso que iguala la ecuación
-        es decir: $D(a_{k+j}) \cap \frac{[|r-r'|,|r-r'|] - \sum_{k+1}^{k+j-1} X_i}{|X_{k+j}|}$.\\
+        Caso 2: Si $[||r-r'||,||r-r'||] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ siendo $a_i=1$, entonces hacemos uso de la regla del la ecuación lineal y solo despejamos uno de los agentes para encontrar el peso que iguala la ecuación
+        es decir: $D(a_{k+j}) \cap \frac{[||r-r'||,||r-r'||] - \sum_{k+1}^{k+j-1} X_i}{|X_{k+j}|}$.\\
 
         Una vez concluidos los hallazgos en la primera iteración, esta es enviada al agente coordinador, para que se ajuste dada la tupla $(X,Y)$ siendo
-        $X$ los valores de entrada a la red y $Y$ los arcos de salida, concluido esto, el agente corrector pasa a la iteración 2 y comienza nuevamente la búsqueda de el arco ideal. Una vez concluido este proceso
-        el agente corrector hace el mismo proceso, pero esta vez asumiendo que la salida de la primera interacción es la entrada de la segunda iteración, es decir $\underset{X}{\min}([|r-r'|,|r-r'|])$ donde $X$ es el vector estado de la red luego de minimizar $[|r-r'|,|r-r'|]$.
+        $X$ los valores de entrada a la red y $Y$ los arcos de salida, concluido esto, el agente corrector pasa a la iteración 2 y comienza nuevamente la búsqueda del arco ideal. Una vez concluido este proceso
+        el agente corrector hace el mismo proceso, pero esta vez asumiendo que la salida de la primera interacción es la entrada de la segunda iteración, es decir $\underset{X}{\min}([||r-r'||,||r-r'||])$ donde $X$ es el vector estado de la red luego de minimizar $[||r-r'||,||r-r'||]$.
         De igual forma la red continua con la siguiente iteración hasta terminar con la cola de iteraciones de la generación. Luego de pasar por todo este proceso la red comienza nuevamente con la siguiente generación de datos. \\
 
         Se itera dos veces sobre la pila de iteraciones porque es necesario entrenar el agente coordinador y para ello se requiere la mayor cantidad de datos posibles. Pues el primer entrenamiento se hace para rectificar los arcos erróneos, y el siguiente para aprender la respuesta correcta.
-        Es importante destacar que existen infinitos grafos correctos, es por esto que el agente coordinador tiene tal comportamiento greedy.
+        Es importante destacar que existen infinitos grafos correctos, es por esto que el agente coordinador tiene tal comportamiento goloso.
 
         \subsection*{Ciclos de iteración}
 
-         Al inicializarse la red, esta recibe un vector de entrada, luego el agente coordinador determina los agentes de salida y los arcos entre agentes. Notar que todos los agentes excepto los agentes que se determinan que son entrada, son de salida, es decir, todos los agentes de entrada reciben el vector de entrada en el primer ciclo de interacción. Para la $k$-iteración el agente coordinador cambia las arcos de los agentes y el agente $i$-ésimo recibe ahora los valores de salida de sus nuevos arcos en la $(k-1)$ iteración. Los agentes de entrada y salida comienzan a iterar hasta detenerse o hasta llegar a una cota máxima de interactividad, terminado este paso, el agente corrector corrige los arcos basado en el error cometido por la red y las envía al agente coordinador, terminado esto, estamos listo para pasar con la siguiente iteración. \\
+         Al inicializarse la red, esta recibe un vector de entrada, luego el agente coordinador determina los agentes de salida y los arcos entre agentes. Notar que todos los agentes excepto los agentes que se determinan que son entrada, son de salida, es decir, todos los agentes de entrada reciben el vector de entrada en el primer ciclo de interacción. Para la $k$-iteración el agente coordinador cambia las arcos de los agentes y el agente $i$-ésimo recibe ahora los valores de salida de sus nuevos arcos en la $(k-1)$ iteración. Los agentes de entrada y salida comienzan a iterar hasta detenerse o hasta llegar a una cota máxima de interactividad, terminado este paso, el agente corrector corrige los arcos basado en el error cometido por la red y las envía al agente coordinador, terminado esto, estamos listo para pasar a la siguiente iteración. \\
 
-        Notar que estos agentes paran las iteraciones si y solo si no se activa ninguna precondición de los agentes que esto a su vez conicide con que no existan arcos entre agentes. En la siguiente figura 1 se ilustra el proceso descrito: \\
+        Notar que estos agentes paran las iteraciones si y solo si no se activa ninguna precondición de los agentes, lo que esto a su vez conicide con que no existan arcos entre agentes. En la siguiente figura 1 se ilustra el proceso descrito: \\
 
 
         \begin{center}

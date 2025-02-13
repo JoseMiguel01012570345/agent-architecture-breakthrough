@@ -3,7 +3,7 @@
 \label{sec:16}
 \subsection*{ \Large Desarrollo del Algoritmo }
 
- En esta sección se desarrollará el pseudocódigo del algoritmo y se analizará la convergencia y complejidad del mismo. En el siguiente gráfico se muestra el desarrollo.
+ En esta sección se desarrollará el pseudocódigo del algoritmo y se analizará la convergencia y complejidad del mismo. En la siguiente página se muestra el desarrollo.
 
  %-------------------------------
  % Main Process Algorithm
@@ -192,11 +192,11 @@
 
  \section*{Análisis de convergencia}
  
-    El analisis de convergencia esta pricipalemnte relacionado a los agentes corrector y coordinador, puestos que estos agentes son los que guian a los agentes 
+    El análisis de convergencia depende escencialmente de a los agentes corrector y coordinador, puestos que estos agentes son los que guían a los agentes 
     de entrada y salida. El agente coordinador siempre encuentra una solución correcta dada la entrada y salida de la red de las infinitas posibles, por tanto se 
-    puede decir que este agente converge a la ¨solución correcta¨. En los siguiente se asume que el agente coordinador converge al mínimo global: \\
+    puede decir que este agente converge a la solución correcta. En lo adelante se asume que el agente coordinador converge al mínimo global: \\
 
-    El problema de encontrar $F:X \rightarrow Y$ se ha convertido $\underset{G}{\min}(||F(X)-Y||)$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
+    El problema de encontrar $F:X \rightarrow Y$ se ha convertido en $\underset{G}{\min}(||F(X)-Y||)$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
     este el agente corrector converge a $G$  entonces la red converge a $Y$ dado $X$.
 
 
@@ -207,7 +207,7 @@
     Los agentes de entrada y salida tienen complejidad $N^2 \geq O(FoT) $ siendo $N$ el número de estos agentes en cuestión, esta consideración 
     sobre los agentes de entrada y salida no se puede extender dado que dichos agentes son cualquier función que recibe como entrada y devuelva una salida, la 
     razón principal de la cota inferior es porque $T$ se computa en $O(N)$ por cada agente $i \in N$. El agente corrector tiene complejidad lineal con respecto al número de agentes 
-    de entrada y salida, es decir $O(N)$ por tanto tiene complejidad temporal $O(N^2)$ con respecto al número de agentes. Sea $f$ el agente coordinador entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
+    de entrada y salida, es decir $O(N)$ por tanto tiene complejidad temporal $O(N^2)$ con respecto al número de agentes. Sea $f$ el agente coordinador, entonces este tiene complejidad $O(f)$, puesto que este es un regresor genérico. 
     El algoritmo en su totalidad tiene complejidad: 
     \begin{center}
         
@@ -220,4 +220,4 @@
 
     \end{center}
 
-Siendo $|D|$ el núumero de pares en el dataset y $C$ la cota máxima de iteración entre agentes.
+Siendo $|D|$ el núumero de pares en el conjunto de datos y $C$ la cota máxima de iteración entre agentes.
