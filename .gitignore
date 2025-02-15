@@ -7,7 +7,7 @@
 *.lot
 *.out
 *.pdf
-!document/Graphics/uhlogo.pdf
+
 *.backup
 *.toc
 *~
@@ -15,9 +15,9 @@
 *.rar
 *.loa
 *.gz
+
 *.fdb_latexmk
 *.fls
-*.py
 *.bcf
 *.xml
 *.pdf_tex
