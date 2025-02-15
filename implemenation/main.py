@@ -146,14 +146,12 @@ def main_process(dataset, max_iterations):
 
     rbf_interpolator_model = model.model(Ninput=n_in, Noutput=n_in**2)
 
-    Y_init = [
-        [dataset[0]["X"] for x in dataset[0]["X"]],
-        [dataset[1]["X"] for x in dataset[1]["X"]],
-    ]
+    Y_init = [dataset[0]["X"] for i in dataset[0]["X"]]
+    X_init = dataset[0]["X"]
 
     coordinator = initialize_coordinator_agent(
         model=rbf_interpolator_model,
-        X_init=[dataset[0]["X"], dataset[1]["X"]],
+        X_init=X_init,
         Y_init=Y_init,
     )
     corrector = initialize_corrector_agent(coordinator=coordinator)
@@ -161,7 +159,7 @@ def main_process(dataset, max_iterations):
 
     results = []
     # For each (X, Y) pair in the dataset:
-    prediction_time_avg = []
+    # prediction_time_avg = []
     for data in dataset:
 
         X = data["X"]
@@ -172,14 +170,14 @@ def main_process(dataset, max_iterations):
         stack_edges = []
 
         while iteration <= max_iterations and not converged:
-            t_start = time.time()
+
             # Step 1: Coordinator determines arcs
             adjacency_matrix = coordinator.generate_arcs(X)
-            prediction_time_avg.append(time.time - t_start)
-            print(
-                f"finished prediction: { time.time - t_start}",
-                f"prediction average:{np.array(prediction_time_avg).mean()}",
-            )
+            # prediction_time_avg.append(time.time - t_start)
+            # print(
+            #     f"finished prediction: { time.time - t_start}",
+            #     f"prediction average:{np.array(prediction_time_avg).mean()}",
+            # )
             initialize_input_agents_with_X(agents=agents, P=adjacency_matrix)
 
             # Save current state (using shallow copies for demonstration)

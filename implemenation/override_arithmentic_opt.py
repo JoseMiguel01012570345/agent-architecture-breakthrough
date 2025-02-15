@@ -9,7 +9,7 @@ class Interval:
 
     def __init__(self, lower, upper):
         if lower > upper:
-            # return
+            return
             raise ValueError(
                 "Lower bound must be less than or equal to the upper bound."
             )

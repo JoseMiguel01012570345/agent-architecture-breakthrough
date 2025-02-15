@@ -152,22 +152,19 @@ def sir_model(S0, I0, R0, days, beta, gamma, index=0, fake_beta=0, fake_gamma=0)
     #     args=beta,
     # )
     # solution_fake = odeint(modelo_SI, y0, t, args=(fake_beta, fake_gamma))
-    solution /= solution.max()
 
-    upper_error = np.random.randint(
-        0, math.ceil(math.ceil(solution.mean()) * 2.5), size=(3, days)
-    )
+    error = math.ceil(np.abs(math.ceil(solution.mean())) * 2.5)
+    error = np.random.randint(0, error, size=(3, days))
 
-    lower_error = np.random.randint(
-        0, math.ceil(math.ceil(solution.mean()) * 2.5), size=(3, days)
-    )
+    # lower_error = np.random.randint(0, np.abs(error / 2) - 1, size=(3, days))
 
     # S_fake, I_fake, R_fake = solution_fake.T
 
-    lower_bound = solution.T - lower_error
-    upper_bound = solution.T + upper_error
-    lower_bound /= lower_bound.max()
-    upper_bound /= upper_bound.max()
+    lower_bound = solution.T - error
+    upper_bound = solution.T + error
+
+    lower_bound /= np.abs(upper_bound.max())
+    upper_bound /= np.abs(upper_bound.max())
 
     lower_S, lower_I, lower_R = lower_bound
     upper_S, upper_I, upper_R = upper_bound
@@ -218,11 +215,11 @@ def dataset_generator():
     """
 
     sir_dataset = []
-    days = 120
+    days = 10
     maximal_param = max_index
     generated_beta = 0
     generated_gramma = 0
-    for i in range(150):
+    for i in range(5):
 
         # Initial conditions:
         S0 = random.randint(1, 10000)  # initial number of susceptible individuals
@@ -235,14 +232,14 @@ def dataset_generator():
         generated_beta = random.randint(0, int(maximal_param))
         generated_gramma = random.randint(0, int(maximal_param))
 
-        print(
-            {
-                "gamma": gamma,
-                "beta": beta,
-                "generated_gramma": generated_gramma,
-                "generated_beta": generated_beta,
-            }
-        )
+        # print(
+        #     {
+        #         "gamma": gamma,
+        #         "beta": beta,
+        #         "generated_gramma": generated_gramma,
+        #         "generated_beta": generated_beta,
+        #     }
+        # )
 
         sir_dataset.append(
             {

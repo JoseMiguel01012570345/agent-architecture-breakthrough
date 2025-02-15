@@ -39,7 +39,7 @@ class model(general_model):
 
     def update(self, X, Y):
 
-        Y = np.abs(np.array(Y)) / np.abs(np.array(Y)).max()
+        Y = np.array(Y)
         X = np.array(X)
 
         self.model.fit(X=X, y=Y)

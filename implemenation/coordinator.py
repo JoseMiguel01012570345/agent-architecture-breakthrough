@@ -63,20 +63,16 @@ class Coordinator:
         """
         print("Retraining model with new training data...")
 
-        middle_interval_point_X = [
-            [(x.lower + x.upper) / 2 for x in X] for X in adjustment[0]
-        ]
+        middle_interval_point_X = [(x.lower + x.upper) / 2 for x in adjustment[0]]
+        middle_interval_point_X = [middle_interval_point_X]
 
         middle_interval_point_Y = []
         for Y in adjustment[1]:
-            row = []
             for y in Y:
                 if isinstance(y, Interval):
-                    for item in y:
-                        row.append((item.lower + item.upper) / 2)
+                    middle_interval_point_Y.append((y.lower + y.upper) / 2)
                 else:
-                    row.append(y)
+                    middle_interval_point_Y.append(y)
 
-            middle_interval_point_Y.append(row)
-
+        middle_interval_point_Y = [middle_interval_point_Y]
         self.model.update(middle_interval_point_X, middle_interval_point_Y)
