@@ -149,8 +149,26 @@ def show(current_output, epoch):
     for index, variable in enumerate(current_output):
         file.write(f"Variable {index}:\n")
         file.write(
-            f"\t interval_middle_point: { watch_overflow((variable.lower + variable.upper)/2)}\n"
+            f"\t lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n"
         )
+
+
+def normalize_agents(agents):
+    max_val = 0
+    for agent in agents:  # pick max value
+        max_agent_value = max(
+            abs(agent.current_output.lower), abs(agent.current_output.upper)
+        )
+        if max_agent_value > max_val:
+            max_val = max_agent_value
+
+    if max_val == 0:
+        return agents
+
+    for agent in agents:
+        agent.current_output /= Interval(max_val, max_val)
+
+    return agents
 
 
 # =============================================================================
@@ -225,11 +243,8 @@ def main_process(dataset, max_iterations, epochs=1):
 
                 # Step 1: Coordinator determines arcs
                 adjacency_matrix = coordinator.generate_arcs(agent_input)
-                # prediction_time_avg.append(time.time - t_start)
-                # print(
-                #     f"finished prediction: { time.time - t_start}",
-                #     f"prediction average:{np.array(prediction_time_avg).mean()}",
-                # )
+
+                agents = normalize_agents(agents=agents)
                 initialize_input_agents_with_X(agents=agents, P=adjacency_matrix)
 
                 # Save current state (using shallow copies for demonstration)
@@ -261,10 +276,10 @@ def main_process(dataset, max_iterations, epochs=1):
                     break
 
                 results.append(current_outputs)
-                show(current_output=current_outputs, epoch=epoch)
                 # input()
                 iteration += 1
 
+            show(current_output=current_outputs, epoch=epoch)
             # Final output collection
 
             # If not converged, run the correction phase and update the coordinator
@@ -282,6 +297,6 @@ if __name__ == "__main__":
     # Create a dummy dataset of (X, Y) pairs.
     # Here, X might be a number (or a vector) and Y is a list of target outputs.
     dataset = compartimental_models.dataset_generator()
-    max_iterations = 100
+    max_iterations = 5
 
     main_process(dataset, max_iterations, epochs=30)
