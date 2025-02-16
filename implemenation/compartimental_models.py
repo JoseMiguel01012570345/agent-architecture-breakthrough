@@ -215,11 +215,11 @@ def dataset_generator():
     """
 
     sir_dataset = []
-    days = 10
+    days = 120
     maximal_param = max_index
     generated_beta = 0
     generated_gramma = 0
-    for i in range(5):
+    for i in range(150):
 
         # Initial conditions:
         S0 = random.randint(1, 10000)  # initial number of susceptible individuals

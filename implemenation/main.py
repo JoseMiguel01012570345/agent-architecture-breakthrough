@@ -284,4 +284,4 @@ if __name__ == "__main__":
     dataset = compartimental_models.dataset_generator()
     max_iterations = 100
 
-    main_process(dataset, max_iterations, epochs=10)
+    main_process(dataset, max_iterations, epochs=30)
