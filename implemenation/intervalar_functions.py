@@ -3,7 +3,7 @@ import math
 from override_arithmentic_opt import Interval
 import sys
 
-max_index = sys.maxsize
+max_index = np.finfo(np.float32).max
 epsilon = 1e-9
 overflow_value = 610
 
@@ -12,88 +12,93 @@ intervalar_functions_avaliable = [
         lambda x: x,
         lambda y: y,
     ),
+    # (
+    #     lambda x: Interval(2, 2) * x,
+    #     lambda y: y / Interval(2, 2),
+    # ),
+    # (
+    #     lambda x: Interval(3, 3) * x + Interval(1, 1),
+    #     lambda y: (y - Interval(1, 1)) / Interval(3, 3),
+    # ),
+    # (
+    #     lambda x: x ** Interval(3, 3),
+    #     lambda y: y ** (Interval(1, 1) / Interval(3, 3)),
+    # ),
+    # (
+    #     lambda x: Interval(math.e, math.e) ** x,
+    #     lambda y: log(a=check_overflow(y.lower), b=check_overflow(y.upper)),
+    # ),
     (
-        lambda x: Interval(2, 2) * x,
-        lambda y: y / Interval(2, 2),
-    ),
-    (
-        lambda x: Interval(3, 3) * x + Interval(1, 1),
-        lambda y: (y - Interval(1, 1)) / Interval(3, 3),
-    ),
-    (
-        lambda x: x ** Interval(3, 3),
-        lambda y: y ** (Interval(1, 1) / Interval(3, 3)),
-    ),
-    (
-        lambda x: Interval(math.e, math.e) ** x,
-        lambda y: log(a=y.lower, b=y.upper),
-    ),
-    (
-        lambda x: log(a=x.lower, b=x.upper),
+        lambda x: log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
         lambda y: Interval(math.e, math.e) ** y,
     ),
     (
-        lambda x: sin(x.lower, x.upper),
-        lambda y: (interval_arcsin(y.lower, y.upper)),
+        lambda x: sin(check_overflow(x.lower), check_overflow(x.upper)),
+        lambda y: (interval_arcsin(check_overflow(y.lower), check_overflow(y.upper))),
     ),
+    # (
+    #     lambda x: interval_tan(check_overflow(x.lower), check_overflow(x.upper)),
+    #     lambda y: Interval(
+    #         math.atan(check_overflow(y.lower)), math.atan(check_overflow(y.upper))
+    #     ),
+    # ),
+    # (
+    #     lambda x: (
+    #         Interval(1, 1) / x
+    #         if check_overflow(x.lower) > 0 or 0 > check_overflow(x.upper)
+    #         else Interval(max_index, max_index)
+    #     ),
+    #     lambda y: (
+    #         Interval(1, 1) / y
+    #         if y.lower > 0 or 0 > y.upper
+    #         else Interval(max_index, max_index)
+    #     ),
+    # ),
     (
-        lambda x: interval_tan(x.lower, x.upper),
-        lambda y: Interval(math.atan(y.lower), math.atan(y.upper)),
+        lambda x: interval_cos(check_overflow(x.lower), check_overflow(x.upper)),
+        lambda y: (interval_arccos(check_overflow(y.lower), check_overflow(y.upper))),
     ),
-    (
-        lambda x: (
-            Interval(1, 1) / x
-            if x.lower > 0 or 0 > x.upper
-            else Interval(max_index, max_index)
-        ),
-        lambda y: (
-            Interval(1, 1) / y
-            if y.lower > 0 or 0 > y.upper
-            else Interval(max_index, max_index)
-        ),
-    ),
-    (
-        lambda x: interval_cos(x.lower, x.upper),
-        lambda y: (interval_cosh(y.lower, y.upper)),
-    ),
-    (
-        lambda x: Interval(1, 1) / (Interval(1, 1) + Interval(math.e, math.e) ** (-x)),
-        lambda y: special_log(a=y.lower, b=y.upper),
-    ),
+    # (
+    #     lambda x: Interval(1, 1) / (Interval(1, 1) + Interval(math.e, math.e) ** (-x)),
+    #     lambda y: special_log(a=check_overflow(y.lower), b=check_overflow(y.upper)),
+    # ),
+    # (
+    #     lambda x: Interval(
+    #         math.sinh(check_overflow(check_overflow(x.upper))),
+    #         math.sinh(check_overflow(check_overflow(x.upper))),
+    #     ),
+    #     lambda y: interval_arcsinh(check_overflow(y.lower), check_overflow(y.upper)),
+    # ),
+    # (
+    #     lambda x: interval_cosh(
+    #         check_overflow(x.lower),
+    #         check_overflow(x.upper),
+    #     ),
+    #     lambda y: (interval_arccosh(check_overflow(y.lower), check_overflow(y.upper))),
+    # ),
     (
         lambda x: Interval(
-            math.sinh(check_overflow(x.upper)),
-            math.sinh(check_overflow(x.upper)),
+            math.atan(check_overflow(x.lower)),
+            math.atan(check_overflow(x.upper)),
         ),
-        lambda y: interval_arcsinh(y.lower, y.upper),
+        lambda y: interval_tan(check_overflow(y.lower), check_overflow(y.upper)),
     ),
     (
-        lambda x: interval_cosh(
-            check_overflow(x.lower),
-            check_overflow(x.upper),
-        ),
-        lambda y: (interval_arccosh(y.lower, y.upper)),
-    ),
-    (
-        lambda x: Interval(math.atan(x.lower), math.atan(x.upper)),
-        lambda y: interval_tan(y.lower, y.upper),
-    ),
-    (
-        lambda x: special_log(a=x.lower, b=x.upper),
+        lambda x: special_log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
         lambda y: Interval(1, 1) / (Interval(1, 1) + Interval(math.e, math.e) ** (-y)),
     ),
-    (
-        lambda x: x ** Interval(1, 1) / Interval(3, 3),
-        lambda y: y ** Interval(3, 3),
-    ),
+    # (
+    #     lambda x: x ** Interval(1, 1) / Interval(3, 3),
+    #     lambda y: y ** Interval(3, 3),
+    # ),
     (
         lambda x: Interval(1, 1) - x,
         lambda y: Interval(1, 1) - y,
     ),
-    (
-        lambda x: log10(a=x.lower, b=x.upper),
-        lambda y: Interval(10, 10) ** y,
-    ),
+    # (
+    #     lambda x: log10(a=check_overflow(x.lower), b=check_overflow(x.upper)),
+    #     lambda y: Interval(10, 10) ** y,
+    # ),
 ]
 
 
@@ -127,7 +132,13 @@ def log10(a, b):
     if b > 0:
         b = epsilon
 
-    return Interval(np.log10(a), np.log10(b))
+    try:
+        ret = Interval(np.log10(a), np.log10(b))
+    except:
+        print(a, b)
+        ValueError("bla bla bla")
+
+    return ret
 
 
 def sin(a, b):
@@ -149,6 +160,9 @@ def sin(a, b):
         cp = math.pi / 2 + k * math.pi
         if a <= cp <= b:
             critical_points.append(cp)
+
+        if len(critical_points) == 2:
+            return Interval(-1, 1)
 
     # Evaluate sin at endpoints and critical points
     points = [a, b] + critical_points
@@ -283,12 +297,29 @@ def interval_arcsin(a, b):
     """
 
     a, b = convert_to_max_integer(a=a, b=b)
-    if a < -1:
-        a = -1
-    elif b > 1:
-        b = 1
+    a, b = np.clip(np.array([a, b]), -1, 1)
 
     return Interval(math.asin(a), math.asin(b))
+
+
+def interval_arccos(a, b):
+    """
+    Compute the inverse sine (arcsin) of an interval [a, b].
+
+    Parameters:
+    x (tuple): A tuple representing the interval (a, b), where a <= b.
+
+    Returns:
+    tuple: The resulting interval (lower, upper).
+
+    Raises:
+    ValueError: If a > b or the interval is outside [-1, 1].
+    """
+
+    a, b = convert_to_max_integer(a=a, b=b)
+    a, b = np.clip(np.array([a, b]), -1, 1)
+
+    return Interval(math.acos(a), math.acos(b))
 
 
 def interval_cos(a, b):
@@ -311,7 +342,11 @@ def interval_cos(a, b):
     k_end = math.floor(b / math.pi)
 
     # Generate critical points (multiples of π within [a, b])
-    critical_points = [k * math.pi for k in range(k_start, k_end + 1)]
+    critical_points = []
+    for k in range(k_start, k_end + 1):
+        critical_points.append(k * math.pi)
+        if len(critical_points) == 2:
+            return Interval(-1, 1)
 
     # Evaluate cos at endpoints and critical points
     points = [a, b] + critical_points
@@ -321,9 +356,9 @@ def interval_cos(a, b):
 
 
 def convert_to_max_integer(a, b):
-    if a == float("inf"):
+    if np.isposinf(a):
         a = max_index
-    if b == float("inf"):
+    if np.isposinf(b):
         b = max_index
 
     return a, b

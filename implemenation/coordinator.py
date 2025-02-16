@@ -2,24 +2,12 @@ from agent_definition import Agent
 from intervalar_functions import Interval
 import numpy as np
 
-import sys
-
-max_index = sys.maxsize
+max_index = np.finfo(np.float32).max
 
 
 # =============================================================================
 # Coordinator
 # =============================================================================
-class DummyModel:
-    def predict(self, X):
-        """
-        Dummy prediction method that returns an "adjacency matrix".
-        In a real implementation, this would be a learned model's prediction.
-        """
-        # For example, return a 2x2 dummy matrix (or any structure needed)
-        return [[1, 0], [0, 1]]
-
-
 class Coordinator:
 
     training_data = []
@@ -34,28 +22,45 @@ class Coordinator:
         middle_interval_point = []
         for x in X:
             if isinstance(x, Interval):
-                t = np.float32((x.lower + x.upper) / 2)
-                if t == np.float32("inf"):
-                    t = max_index
-                middle_interval_point.append(t)
+
+                middle_interval_point.append(
+                    self.watch_overflow((x.lower + x.upper) / 2)
+                )  # watch overflow
 
             if isinstance(x, Agent):
-                if x.isOutput:
-                    continue
 
                 t = np.float32((x.current_output.lower + x.current_output.upper) / 2)
-                if t == np.float32("inf"):
+                if np.isposinf(t):
                     t = max_index
                 middle_interval_point.append(t)
 
         return self.model.predict(middle_interval_point)
 
-    def update(self, adjustments):
+    def update(self, adjustment):
         """
         Update the coordinator (e.g. update the ML model) based on the adjustments.
         """
-        self.training_data.append(adjustments)
-        self.retrain_model(adjustments)
+        self.training_data.append(adjustment)
+
+        middle_interval_point_X = []
+        for X in adjustment[0]:
+            row = []
+            for x in X:
+                row.append(
+                    self.watch_overflow((x.lower + x.upper) / 2)
+                )  # watch overflow
+
+            middle_interval_point_X.append(row)
+
+        middle_interval_point_Y = []
+        for Y in adjustment[1]:
+            row = []
+            for y in Y:
+                row.append(y)
+
+            middle_interval_point_Y.append(row)
+
+        self.model.update(middle_interval_point_X, middle_interval_point_Y)
 
     def retrain_model(self, adjustment):
         """
@@ -63,16 +68,31 @@ class Coordinator:
         """
         print("Retraining model with new training data...")
 
-        middle_interval_point_X = [(x.lower + x.upper) / 2 for x in adjustment[0]]
-        middle_interval_point_X = [middle_interval_point_X]
+        middle_interval_point_X = []
+        for X in adjustment[0]:
+            row = []
+            for x in X:
+                row.append(
+                    self.watch_overflow((x.lower + x.upper) / 2)
+                )  # watch overflow
+
+            middle_interval_point_X.append(row)
 
         middle_interval_point_Y = []
         for Y in adjustment[1]:
             for y in Y:
                 if isinstance(y, Interval):
-                    middle_interval_point_Y.append((y.lower + y.upper) / 2)
+                    middle_interval_point_Y.append(
+                        self.watch_overflow((y.lower + y.upper) / 2)
+                    )
                 else:
                     middle_interval_point_Y.append(y)
 
         middle_interval_point_Y = [middle_interval_point_Y]
         self.model.update(middle_interval_point_X, middle_interval_point_Y)
+
+    def watch_overflow(self, t):
+        if np.isposinf(t):
+            t = max_index
+
+        return t

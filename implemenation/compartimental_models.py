@@ -186,20 +186,20 @@ def sir_model(S0, I0, R0, days, beta, gamma, index=0, fake_beta=0, fake_gamma=0)
     # )
 
     interval_solution = [
-        interval_opt.Interval(lower=float(low), upper=float(up))
+        interval_opt.Interval(lower=np.float32(low), upper=np.float32(up))
         for low, up in zip(lower_S, upper_S)
     ]
 
     interval_solution.extend(
         [
-            interval_opt.Interval(lower=float(low), upper=float(up))
+            interval_opt.Interval(lower=np.float32(low), upper=np.float32(up))
             for low, up in zip(lower_I, upper_I)
         ]
     )
 
     interval_solution.extend(
         [
-            interval_opt.Interval(lower=float(low), upper=float(up))
+            interval_opt.Interval(lower=np.float32(low), upper=np.float32(up))
             for low, up in zip(lower_R, upper_R)
         ]
     )

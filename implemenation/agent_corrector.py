@@ -1,4 +1,8 @@
 from intervalar_functions import Interval
+import os
+import numpy as np
+
+max_index = np.finfo(np.float32).max
 
 
 # =============================================================================
@@ -21,6 +25,7 @@ class Corrector:
         adjustments = [element for element in adjacency_matrix]
         # Loop over each output agent
         agent_output_index = -1
+        # os.system("cls")
         for i, agent in enumerate(agents):
             # In the pseudocode the target is computed as F^{-1}(Y_i).
             # Here we simply use the agent’s inverse_function
@@ -31,8 +36,7 @@ class Corrector:
             target = agent.inverse_function(Y[agent_output_index])
             # Compute the current output via function G
             current = agent.G(P=agent.input["P"], agents=agent.input["X"])
-            r = target ** Interval(2, 2) - current ** Interval(2, 2)
-            residual = r ** Interval(1 / 2, 1 / 2)
+            residual = target - current
 
             # Get a sorted list of input agents (dummy sort by output value)
             connected_agents = self.get_connected_agents(
@@ -46,26 +50,30 @@ class Corrector:
 
                 new_cumulative_effect = cumulative_effect + agent.current_output
 
-                if (new_cumulative_effect.lower + new_cumulative_effect.upper) / 2 >= (
-                    residual.lower + residual.upper
-                ) / 2:
+                if self.watch_overflow(
+                    (new_cumulative_effect.lower + new_cumulative_effect.upper) / 2
+                ) >= self.watch_overflow((residual.lower + residual.upper) / 2):
                     if cumulative_effect == residual:
                         break
 
                     remaining = residual - cumulative_effect
-
                     # Adjust the weight of the current (last) agent
                     adjusted_weight = remaining / agent.current_output
+                    r = adjusted_weight * connected_agent.current_output
                     adjustments[agent.index + connected_agent.index] = (
-                        adjusted_weight * connected_agent.current_output
+                        self.watch_overflow((r.lower + r.upper) / 2)
                     )
-                    if remaining.lower != 0 or remaining.upper != 0:
-                        continue
 
+                    print(
+                        {
+                            "adjusted_weight.lower=": adjusted_weight.lower,
+                            "adjusted_weight.upper=": adjusted_weight.upper,
+                        }
+                    )
                     break
 
                 cumulative_effect += agent.current_output
-                adjustments[agent.index + connected_agent] = Interval(1, 1)
+                adjustments[agent.index + connected_agent.index] = np.float32(1)
 
         # Return a new adjacency matrix based on the adjustments
         return adjustments
@@ -88,8 +96,7 @@ class Corrector:
             agent.FoG(P, agents)
 
     def agent_reset(self, agent, X):
-        agent.reset_default(X=X)
-        pass
+        agent.init_input(X=X)
 
     def correction_phase(self, agents, stack_edges, Y, X):
         """
@@ -100,17 +107,18 @@ class Corrector:
         outputs_list = []
         adj_matrix_list = []
         for adjacency_matrix, agents in stack_edges:
-            outputs = [agent.current_output for agent in agents if not agent.isOutput]
+            outputs = [agent.current_output for agent in agents]
 
             outputs_list.append(outputs)
             adj_matrix_list.append(
                 self.adjust_arcs(adjacency_matrix=adjacency_matrix, agents=agents, Y=Y)
             )
 
-        start = 0
+        i = 0
         # Second loop: iterate over stored states again
-        adjacency_matrix, agents = stack_edges[0]
-        while start < len(stack_edges):
+        while i < len(stack_edges):
+
+            adjacency_matrix, agents = stack_edges[i]
 
             for agent in agents:
                 self.agent_reset(agent=agent, X=X)
@@ -118,15 +126,21 @@ class Corrector:
             adjacency_matrix = self.coordinator.generate_arcs(agents)
             self.initialize_input_agents_with_X(agents=agents, P=adjacency_matrix)
 
-            outputs = [agent.current_output for agent in agents if not agent.isOutput]
+            outputs = [agent.current_output for agent in agents]
 
             outputs_list.append(outputs)
             adj_matrix_list.append(
                 self.adjust_arcs(adjacency_matrix, agents=agents, Y=Y)
             )
 
-            start += 1
+            i += 1
 
         arc_adjustments.append(outputs_list)
         arc_adjustments.append(adj_matrix_list)
         return arc_adjustments
+
+    def watch_overflow(self, t):
+        if np.isposinf(t):
+            t = max_index
+
+        return t

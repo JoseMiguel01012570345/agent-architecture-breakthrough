@@ -5,12 +5,16 @@ import agent_corrector as aget_correct
 import compartimental_models
 import model
 from intervalar_functions import Interval
-import time
+import os
 import numpy as np
+
+os.system("cls")
 
 # =============================================================================
 # Global constants
 # =============================================================================
+max_index = np.finfo(np.float32).max
+epsilon = 1e-9
 
 
 def no_arcs_exist(adjacency_matrix, umbral=0.02):
@@ -19,7 +23,7 @@ def no_arcs_exist(adjacency_matrix, umbral=0.02):
     """
     if adjacency_matrix is None:
         return True
-    if not any([element > 0 for element in adjacency_matrix]):
+    if not any([element > epsilon for element in adjacency_matrix]):
         return True
     return False
 
@@ -29,13 +33,11 @@ def calculate_max_difference(target_outputs, current_outputs):
     Calculate the maximum absolute difference between target and current outputs.
     """
     differences = [
-        t - c / len(current_outputs) for t, c in zip(target_outputs, current_outputs)
+        (t - c) ** Interval(2, 2) for t, c in zip(target_outputs, current_outputs)
     ]
     sum_difference = Interval(0, 0)
     for diff in differences:
-        sum_difference += Interval(
-            min(abs(diff.lower), abs(diff.upper)), max(abs(diff.lower), abs(diff.upper))
-        )
+        sum_difference += diff
 
     return sum_difference
 
@@ -69,6 +71,7 @@ def initialize_agents(number_agents, number_input_agents, X):
         )
         i += 1
     agents = []
+    output_agents = []
     for index, function in enumerate(intervalar_Functions):
 
         agent = None
@@ -89,10 +92,11 @@ def initialize_agents(number_agents, number_input_agents, X):
                 inverted_function=intervalar_inverted_functions[index],
                 num_agents=number_agents,
             )
+            output_agents.append(agent)
 
         agents.append(agent)
 
-    return agents
+    return agents, output_agents
 
 
 def initialize_coordinator_agent(model, X_init, Y_init):
@@ -101,7 +105,14 @@ def initialize_coordinator_agent(model, X_init, Y_init):
     """
 
     coordinator = coord.Coordinator(model=model)
-    coordinator.update([X_init, Y_init])
+    middle_interval_point_Y = []
+    for y in Y_init:
+
+        middle_interval_point_Y.append((y.lower + y.upper) / 2)
+
+    Y_init.clear()
+    Y_init = middle_interval_point_Y
+    coordinator.update([[X_init], [Y_init]])
     return coordinator
 
 
@@ -117,16 +128,35 @@ def initialize_input_agents_with_X(agents, P):
     Initialize each input agent with the input X.
     """
 
-    for agent in agents:
+    for index, agent in enumerate(agents):
         agent.FoG(P=P, agents=agents)
 
     return
 
 
+def watch_overflow(a):
+
+    a = np.float32(a)
+
+    r = np.clip(np.array([a]), -max_index, max_index)
+    return a
+
+
+def show(current_output, epoch):
+    os.system("cls")
+    file = open(f"./epochs/output_{epoch}.txt", "a")
+    file.write("____________________________________________\n")
+    for index, variable in enumerate(current_output):
+        file.write(f"Variable {index}:\n")
+        file.write(
+            f"\t interval_middle_point: { watch_overflow((variable.lower + variable.upper)/2)}\n"
+        )
+
+
 # =============================================================================
 # Main Process
 # =============================================================================
-def main_process(dataset, max_iterations):
+def main_process(dataset, max_iterations, epochs=1):
     """
     Main process that iterates over the dataset.
 
@@ -138,16 +168,18 @@ def main_process(dataset, max_iterations):
         results: collected outputs from the output agents.
     """
     # Initialize agents
-    n_in = len(dataset[0]["X"])
     n_out = len(dataset[0]["Y"])
-    agents = initialize_agents(
+    n_in = len(dataset[0]["X"]) - n_out
+    agents, output_agent = initialize_agents(
         number_agents=n_in + n_out, number_input_agents=n_in, X=dataset[0]["X"]
     )
 
     rbf_interpolator_model = model.model(Ninput=n_in, Noutput=n_in**2)
 
-    Y_init = [dataset[0]["X"] for i in dataset[0]["X"]]
     X_init = dataset[0]["X"]
+    Y_init = []
+    for i in X_init:
+        Y_init.extend(X_init)
 
     coordinator = initialize_coordinator_agent(
         model=rbf_interpolator_model,
@@ -160,62 +192,87 @@ def main_process(dataset, max_iterations):
     results = []
     # For each (X, Y) pair in the dataset:
     # prediction_time_avg = []
-    for data in dataset:
+    agent_input = []
 
-        X = data["X"]
-        Y = data["Y"]
+    try:
+        os.remove("./epochs")
+        os.mkdir("./epochs")
+    except:
+        pass
 
-        iteration = 1
-        converged = False
-        stack_edges = []
+    for epoch in range(epochs):
 
-        while iteration <= max_iterations and not converged:
+        try:
+            file = open(f"./epochs/output_{epoch}.txt", "w")
+            file.write("")
+            file.close()
+        except:
+            pass
 
-            # Step 1: Coordinator determines arcs
-            adjacency_matrix = coordinator.generate_arcs(X)
-            # prediction_time_avg.append(time.time - t_start)
-            # print(
-            #     f"finished prediction: { time.time - t_start}",
-            #     f"prediction average:{np.array(prediction_time_avg).mean()}",
-            # )
-            initialize_input_agents_with_X(agents=agents, P=adjacency_matrix)
+        for index, data in enumerate(dataset):
 
-            # Save current state (using shallow copies for demonstration)
-            stack_edges.append((adjacency_matrix, agents))
+            X = data["X"]
+            Y = data["Y"]
+            agent_input = X
+            iteration = 1
+            converged = False
+            stack_edges = []
+            # Reset agents’ defaults
+            for agent in agents:
+                agent.init_input(X=X)
 
-            # Step 2: Check termination condition
-            if no_arcs_exist(adjacency_matrix):
-                converged = True
-                break
+            while iteration <= max_iterations and not converged:
 
-            # Step 3: Check convergence
-            # Here we assume the target outputs are provided as Y (a list)
-            current_outputs = [
-                agent.current_output for agent in agents if agent.isOutput
-            ]
-            delta = calculate_max_difference(Y, current_outputs)
-            if delta.upper < convergence_threshold:
-                converged = True
-                break
+                # Step 1: Coordinator determines arcs
+                adjacency_matrix = coordinator.generate_arcs(agent_input)
+                # prediction_time_avg.append(time.time - t_start)
+                # print(
+                #     f"finished prediction: { time.time - t_start}",
+                #     f"prediction average:{np.array(prediction_time_avg).mean()}",
+                # )
+                initialize_input_agents_with_X(agents=agents, P=adjacency_matrix)
 
-            iteration += 1
+                # Save current state (using shallow copies for demonstration)
+                stack_edges.append((adjacency_matrix, agents))
 
-        # Final output collection
+                # Step 2: Check termination condition
+                if no_arcs_exist(adjacency_matrix):
+                    converged = True
+                    break
 
-        results.append(current_outputs)
+                # Step 3: Check convergence
+                # Here we assume the target outputs are provided as Y (a list)
+                current_outputs = []
+                agent_input.clear()
+                for agent in agents:
+                    if agent.isOutput:
+                        current_outputs.append(
+                            Interval(
+                                lower=agent.current_output.lower,
+                                upper=agent.current_output.upper,
+                            )
+                        )
 
-        # If not converged, run the correction phase and update the coordinator
-        if not converged:
-            arc_adjustments = corrector.correction_phase(
-                agents=agents, stack_edges=stack_edges, Y=Y, X=X
-            )
-            coordinator.update(arc_adjustments)  # TODO: CHECK
+                    agent_input.append(agent.current_output)
 
-        # Reset agents’ defaults
-        for agent in agents:
-            agent.reset_default_outputs()
+                delta = calculate_max_difference(Y, current_outputs)
+                if delta.upper < convergence_threshold:
+                    converged = True
+                    break
 
-    return results
+                results.append(current_outputs)
+                show(current_output=current_outputs, epoch=epoch)
+                # input()
+                iteration += 1
+
+            # Final output collection
+
+            # If not converged, run the correction phase and update the coordinator
+            if not converged:
+                arc_adjustments = corrector.correction_phase(
+                    agents=agents, stack_edges=stack_edges, Y=Y, X=X
+                )
+                coordinator.update(arc_adjustments)
 
 
 # =============================================================================
@@ -227,5 +284,4 @@ if __name__ == "__main__":
     dataset = compartimental_models.dataset_generator()
     max_iterations = 100
 
-    final_results = main_process(dataset, max_iterations)
-    print("Final results:", final_results)
+    main_process(dataset, max_iterations, epochs=10)

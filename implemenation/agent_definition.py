@@ -2,10 +2,11 @@
 # Agent Classes and Dummy Implementations
 # =============================================================================
 from override_arithmentic_opt import Interval
+import numpy as np
 
 import sys
 
-max_index = sys.maxsize
+max_index = np.finfo(np.float32).max
 epsilon = 1e-9
 
 
@@ -13,12 +14,22 @@ class Agent:
 
     index = 0
     previous_output = Interval(0, 0)
-    current_output = Interval(0, 0)
+    _current_output_ = Interval(0, 0)
     function = None
     inverted_function = None
     isOutput = False
     input = None
     num_agents = 0
+
+    @property
+    def current_output(self):
+        return Interval(
+            lower=self._current_output_.lower, upper=self._current_output_.upper
+        )
+
+    @current_output.setter
+    def current_output(self, new_current):
+        self._current_output_ = self.watch_overflow(result=new_current)
 
     def __init__(
         self,
@@ -34,17 +45,12 @@ class Agent:
         self.function = function
         self.inverted_function = inverted_function
         self.num_agents = num_agents
-        self.init_input(X=X)
 
     def init_input(self, X):
         if self.isOutput:
             return
 
-        result = Interval(0, 0)
-        for x in X:
-            result += x
-
-        self.current_output = self.function(result)
+        self.current_output = X[self.index]
 
     def FoG(self, P, agents):
         """
@@ -52,14 +58,15 @@ class Agent:
         """
 
         self.previous_output = self.current_output
-        self.current_output = self.function(self.G(P=P, agents=agents))
+        r = self.watch_overflow(result=self.function(self.G(P=P, agents=agents)))
 
-        if self.current_output.lower == float("inf"):
-            self.current_output.lower = max_index
-        if self.current_output.upper == float("inf"):
-            self.current_output.upper = max_index
+        if np.isnan(r.lower):
+            r.lower = max_index
 
-        return self.current_output
+        if np.isnan(r.upper):
+            r.upper = max_index
+
+        self.current_output = r
 
     def get_connected_agents(self, adjacency_matrix):
         """
@@ -99,11 +106,35 @@ class Agent:
         for index, agent in enumerate(agents):
             if self.index == index:
                 continue
-            result = result + agent.current_output * Interval(
-                float(P[self.index + index]), float(P[self.index + index])
-            )
+            if np.isnan(agent.current_output.lower):
+                agent.current_output.lower = max_index
 
-        return result
+            if np.isnan(agent.current_output.upper):
+                agent.current_output.upper = max_index
+
+            result += agent.current_output * Interval(
+                np.float32(P[self.index + index]), np.float32(P[self.index + index])
+            )
+            result.lower = np.float32(result.lower)  # convert to float32
+            result.upper = np.float32(result.upper)  # convert to float32
+
+            if np.isnan(result.lower) or np.isposinf(
+                result.lower
+            ):  # truncate lower bound value
+                result.lower = max_index
+
+            if np.isneginf(result.lower):
+                result.lower = -max_index
+
+            if np.isnan(result.upper) or np.isposinf(
+                result.upper
+            ):  # truncate value of upper bound
+                result.upper = max_index
+
+            if np.isneginf(result.upper):
+                result.upper = max_index
+
+        return self.watch_overflow(result=result)
 
     def inverse_function(self, Y):
         """
@@ -111,5 +142,13 @@ class Agent:
         """
         return self.inverted_function(Y)
 
-    def reset_default(self, X):
-        self.init_input(X=X)
+    def watch_overflow(self, result):
+
+        result.lower = np.float32(result.lower)
+        result.upper = np.float32(result.upper)
+
+        r = np.clip(np.array([result.lower, result.upper]), -max_index, max_index)
+        result.lower = r.min()
+        result.upper = r.max()
+
+        return result

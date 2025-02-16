@@ -1,11 +1,10 @@
 import numpy as np
 
-# from scipy.interpolate import RBFInterpolator
-from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+
+max_index = np.finfo(np.float32).max
 
 
 class general_model:
@@ -42,6 +41,19 @@ class model(general_model):
         Y = np.array(Y)
         X = np.array(X)
 
+        Y = np.clip(Y, -max_index, max_index)
+        X = np.clip(X, -max_index, max_index)
+
+        max_x = np.abs(X).max()
+        max_y = np.abs(Y).max()
+        if max_x == 0:
+            max_x = 1
+        if max_y == 0:
+            max_y = 1
+
+        X /= max_x
+        Y /= max_y
+
         self.model.fit(X=X, y=Y)
 
         return
@@ -49,6 +61,8 @@ class model(general_model):
     def predict(self, X):
 
         X = np.array([X])
+        X = np.float32(X)
+        X /= np.abs(X).max()
 
         y_pred = self.model.predict(X=X)
 
