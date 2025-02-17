@@ -59,9 +59,14 @@ class Corrector:
                     remaining = residual - cumulative_effect
                     # Adjust the weight of the current (last) agent
                     adjusted_weight = remaining / agent.current_output
-                    r = adjusted_weight * connected_agent.current_output
+
+                    adjusted_weight.lower = self.watch_overflow(adjusted_weight.lower)
+                    adjusted_weight.upper = self.watch_overflow(adjusted_weight.upper)
+
                     adjustments[agent.index + connected_agent.index] = (
-                        self.watch_overflow((r.lower + r.upper) / 2)
+                        self.watch_overflow(
+                            (adjusted_weight.lower + adjusted_weight.upper) / 2
+                        )
                     )
 
                     print(
