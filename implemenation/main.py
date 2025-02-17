@@ -7,6 +7,7 @@ import model
 from intervalar_functions import Interval
 import os
 import numpy as np
+from copy import deepcopy
 
 os.system("cls")
 
@@ -32,9 +33,12 @@ def calculate_max_difference(target_outputs, current_outputs):
     """
     Calculate the maximum absolute difference between target and current outputs.
     """
-    differences = [
-        (t - c) ** Interval(2, 2) for t, c in zip(target_outputs, current_outputs)
-    ]
+    differences = []
+    for t, c in zip(target_outputs, current_outputs):
+        m = t - c
+        two = Interval(2, 2)
+        differences.append(m**two)
+
     sum_difference = Interval(0, 0)
     for diff in differences:
         sum_difference += diff
@@ -56,40 +60,62 @@ def initialize_agents(number_agents, number_input_agents, X):
     i = 0
     intervalar_Functions = []
     intervalar_inverted_functions = []
+
+    output_intervalar_Functions = []
+    output_intervalar_inverted_functions = []
     while i < number_agents:
+        if i in list_of_input_agents:
+            intervalar_Functions.append(
+                intervalar_functions.intervalar_functions_avaliable[
+                    i % len(intervalar_functions.intervalar_functions_avaliable)
+                ][0]
+            )
 
-        intervalar_Functions.append(
-            intervalar_functions.intervalar_functions_avaliable[
-                i % len(intervalar_functions.intervalar_functions_avaliable)
-            ][0]
-        )
+            intervalar_inverted_functions.append(
+                intervalar_functions.intervalar_functions_avaliable[
+                    i % len(intervalar_functions.intervalar_functions_avaliable)
+                ][1]
+            )
+        else:
 
-        intervalar_inverted_functions.append(
-            intervalar_functions.intervalar_functions_avaliable[
-                i % len(intervalar_functions.intervalar_functions_avaliable)
-            ][1]
-        )
+            output_intervalar_Functions.append(
+                intervalar_functions.output_intervalar_functions_avaliable[
+                    i % len(intervalar_functions.output_intervalar_functions_avaliable)
+                ][0]
+            )
+            output_intervalar_inverted_functions.append(
+                intervalar_functions.output_intervalar_functions_avaliable[
+                    i % len(intervalar_functions.output_intervalar_functions_avaliable)
+                ][1]
+            )
+
         i += 1
     agents = []
     output_agents = []
-    for index, function in enumerate(intervalar_Functions):
+    agent_output_count = -1
+    agent_input_count = -1
+    for index in range(len(intervalar_Functions) + len(output_intervalar_Functions)):
 
         agent = None
         if index in list_of_input_agents:
+            agent_input_count += 1
             agent = Agent(
                 X=X,
                 index=index,
-                function=function,
-                inverted_function=intervalar_inverted_functions[index],
+                function=intervalar_Functions[agent_input_count],
+                inverted_function=intervalar_inverted_functions[agent_input_count],
                 isOutput=False,
                 num_agents=number_agents,
             )
         else:
+            agent_output_count += 1
             agent = Agent(
                 X=X,
                 index=index,
-                function=function,
-                inverted_function=intervalar_inverted_functions[index],
+                function=output_intervalar_Functions[agent_output_count],
+                inverted_function=output_intervalar_inverted_functions[
+                    agent_output_count
+                ],
                 num_agents=number_agents,
             )
             output_agents.append(agent)
@@ -142,14 +168,21 @@ def watch_overflow(a):
     return a
 
 
-def show(current_output, epoch):
+def show(current_output, epoch, time, finish_time=None, expected_data=[]):
+
+    show_finish_time = ""
+    if finish_time is not None:
+        show_finish_time = f"<<_______FINISH TIME: {finish_time} seconds_________>>"
+
     os.system("cls")
-    file = open(f"./epochs/output_{epoch}.txt", "a")
-    file.write("____________________________________________\n")
+    file = open(f"./epochs/epoch_{epoch+1}.txt", "a")
+    file.write(
+        f"____________________________________________TIME:{time} seconds____>>> \n"
+    )
     for index, variable in enumerate(current_output):
         file.write(f"Variable {index}:\n")
         file.write(
-            f"\t lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n"
+            f"lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n ___expected value____>>: \n expected_value_{index} lower_bound: {expected_data[index].lower} \n expected_value_{index} upper_bound: {expected_data[index].upper} \n \n {show_finish_time}"
         )
 
 
@@ -212,16 +245,14 @@ def main_process(dataset, max_iterations, epochs=1):
     # prediction_time_avg = []
     agent_input = []
 
-    try:
-        os.remove("./epochs")
-        os.mkdir("./epochs")
-    except:
-        pass
+    import time
 
+    start_time = time.time()
+    converged = False
     for epoch in range(epochs):
 
         try:
-            file = open(f"./epochs/output_{epoch}.txt", "w")
+            file = open(f"./epochs/epoch_{epoch + 1}.txt", "w")
             file.write("")
             file.close()
         except:
@@ -231,14 +262,14 @@ def main_process(dataset, max_iterations, epochs=1):
 
             X = data["X"]
             Y = data["Y"]
-            agent_input = X
+            agent_input = deepcopy(X)
             iteration = 1
-            converged = False
             stack_edges = []
             # Reset agents’ defaults
             for agent in agents:
                 agent.init_input(X=X)
 
+            ellapse = time.time()
             while iteration <= max_iterations and not converged:
 
                 # Step 1: Coordinator determines arcs
@@ -271,15 +302,23 @@ def main_process(dataset, max_iterations, epochs=1):
                     agent_input.append(agent.current_output)
 
                 delta = calculate_max_difference(Y, current_outputs)
-                if delta.upper < convergence_threshold:
-                    converged = True
-                    break
+                if delta.lower < 0:
+                    delta += Interval(lower=abs(delta.lower), upper=abs(delta.lower))
 
                 results.append(current_outputs)
                 # input()
                 iteration += 1
 
-            show(current_output=current_outputs, epoch=epoch)
+                if delta.upper < convergence_threshold:
+                    converged = True
+                    break
+
+            show(
+                current_output=current_outputs,
+                epoch=epoch,
+                time=time.time() - ellapse,
+                expected_data=data["Y"],
+            )
             # Final output collection
 
             # If not converged, run the correction phase and update the coordinator
@@ -288,6 +327,22 @@ def main_process(dataset, max_iterations, epochs=1):
                     agents=agents, stack_edges=stack_edges, Y=Y, X=X
                 )
                 coordinator.update(arc_adjustments)
+            else:
+                os.system("cls")
+                print("Ajustment has converged.")
+                break
+
+        if epoch == epochs - 1:
+            show(
+                current_output=current_outputs,
+                epoch=epoch,
+                time=time.time() - ellapse,
+                finish_time=time.time() - start_time,
+            )
+
+        if delta.upper < convergence_threshold:
+            converged = True
+            break
 
 
 # =============================================================================
@@ -296,7 +351,7 @@ def main_process(dataset, max_iterations, epochs=1):
 if __name__ == "__main__":
     # Create a dummy dataset of (X, Y) pairs.
     # Here, X might be a number (or a vector) and Y is a list of target outputs.
-    dataset = compartimental_models.dataset_generator()
+    dataset = compartimental_models.dataset_generator(epidemic_number=30)
     max_iterations = 5
 
-    main_process(dataset, max_iterations, epochs=30)
+    main_process(dataset, max_iterations, epochs=10)

@@ -7,10 +7,114 @@ max_index = np.finfo(np.float32).max
 epsilon = 1e-9
 overflow_value = 610
 
+output_intervalar_functions_avaliable = [  # output agents must cover all of the y_true values of dataset
+    (
+        lambda x: Interval(lower=x.lower, upper=x.upper),
+        lambda y: Interval(lower=y.lower, upper=y.upper),
+    ),
+    (
+        lambda x: Interval(2, 2) * x,
+        lambda y: y / Interval(2, 2),
+    ),
+    # (
+    #     lambda x: Interval(3, 3) * x + Interval(1, 1),
+    #     lambda y: (y - Interval(1, 1)) / Interval(3, 3),
+    # ),
+    (
+        lambda x: x ** Interval(3, 3),
+        lambda y: y ** (Interval(1, 1) / Interval(3, 3)),
+    ),
+    # (
+    #     lambda x: Interval(math.e, math.e) ** x,
+    #     lambda y: log(a=check_overflow(y.lower), b=check_overflow(y.upper)),
+    # ),
+    # (
+    #     lambda x: log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
+    #     lambda y: Interval(math.e, math.e)
+    #     ** Interval(lower=y.lower, upper=y.upper),
+    # ),
+    # (
+    #     lambda x: sin(check_overflow(x.lower), check_overflow(x.upper)),
+    #     lambda y: (
+    #         interval_arcsin(check_overflow(y.lower), check_overflow(y.upper))
+    #     ),
+    # ),
+    (
+        lambda x: interval_tan(check_overflow(x.lower), check_overflow(x.upper)),
+        lambda y: Interval(
+            math.atan(check_overflow(y.lower)), math.atan(check_overflow(y.upper))
+        ),
+    ),
+    (
+        lambda x: (
+            Interval(1, 1) / x
+            if check_overflow(x.lower) > 0 or 0 > check_overflow(x.upper)
+            else Interval(max_index, max_index)
+        ),
+        lambda y: (
+            Interval(1, 1) / y
+            if y.lower > 0 or 0 > y.upper
+            else Interval(max_index, max_index)
+        ),
+    ),
+    # (
+    #     lambda x: interval_cos(check_overflow(x.lower), check_overflow(x.upper)),
+    #     lambda y: (
+    #         interval_arccos(check_overflow(y.lower), check_overflow(y.upper))
+    #     ),
+    # ),
+    (
+        lambda x: Interval(1, 1) / (Interval(1, 1) + Interval(math.e, math.e) ** (-x)),
+        lambda y: special_log(a=check_overflow(y.lower), b=check_overflow(y.upper)),
+    ),
+    # (
+    #     lambda x: Interval(
+    #         math.sinh(check_overflow(check_overflow(x.upper))),
+    #         math.sinh(check_overflow(check_overflow(x.upper))),
+    #     ),
+    #     lambda y: interval_arcsinh(check_overflow(y.lower), check_overflow(y.upper)),
+    # ),
+    # (
+    #     lambda x: interval_cosh(
+    #         check_overflow(x.lower),
+    #         check_overflow(x.upper),
+    #     ),
+    #     lambda y: (interval_arccosh(check_overflow(y.lower), check_overflow(y.upper))),
+    # ),
+    (
+        lambda x: Interval(
+            math.atan(check_overflow(x.lower)),
+            math.atan(check_overflow(x.upper)),
+        ),
+        lambda y: interval_tan(check_overflow(y.lower), check_overflow(y.upper)),
+    ),
+    # (
+    #     lambda x: special_log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
+    #     lambda y: Interval(1, 1)
+    #     / (
+    #         Interval(1, 1)
+    #         + Interval(math.e, math.e) ** (-Interval(lower=y.lower, upper=y.upper))
+    #     ),
+    # ),
+    (
+        lambda x: x ** Interval(1, 1) / Interval(3, 3),
+        lambda y: y ** Interval(3, 3),
+    ),
+    (
+        lambda x: Interval(1, 1) - Interval(lower=x.lower, upper=x.upper),
+        lambda y: Interval(1, 1) - Interval(lower=y.lower, upper=y.upper),
+    ),
+    # (
+    #     lambda x: log10(a=check_overflow(x.lower), b=check_overflow(x.upper)),
+    #     lambda y: Interval(10, 10) ** y,
+    # ),
+]
+
+
 intervalar_functions_avaliable = [
     (
-        lambda x: x,
-        lambda y: y,
+        lambda x: Interval(lower=x.lower, upper=x.upper),
+        lambda y: Interval(lower=y.lower, upper=y.upper),
     ),
     # (
     #     lambda x: Interval(2, 2) * x,
@@ -30,7 +134,7 @@ intervalar_functions_avaliable = [
     # ),
     (
         lambda x: log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
-        lambda y: Interval(math.e, math.e) ** y,
+        lambda y: Interval(math.e, math.e) ** Interval(lower=y.lower, upper=y.upper),
     ),
     (
         lambda x: sin(check_overflow(x.lower), check_overflow(x.upper)),
@@ -85,15 +189,19 @@ intervalar_functions_avaliable = [
     ),
     (
         lambda x: special_log(a=check_overflow(x.lower), b=check_overflow(x.upper)),
-        lambda y: Interval(1, 1) / (Interval(1, 1) + Interval(math.e, math.e) ** (-y)),
+        lambda y: Interval(1, 1)
+        / (
+            Interval(1, 1)
+            + Interval(math.e, math.e) ** (-Interval(lower=y.lower, upper=y.upper))
+        ),
     ),
     # (
     #     lambda x: x ** Interval(1, 1) / Interval(3, 3),
     #     lambda y: y ** Interval(3, 3),
     # ),
     (
-        lambda x: Interval(1, 1) - x,
-        lambda y: Interval(1, 1) - y,
+        lambda x: Interval(1, 1) - Interval(lower=x.lower, upper=x.upper),
+        lambda y: Interval(1, 1) - Interval(lower=y.lower, upper=y.upper),
     ),
     # (
     #     lambda x: log10(a=check_overflow(x.lower), b=check_overflow(x.upper)),
@@ -105,10 +213,7 @@ intervalar_functions_avaliable = [
 def log(a, b):
     a, b = convert_to_max_integer(a=a, b=b)
     if a < 0:
-        a = epsilon
-
-    if b < 0:
-        b = epsilon
+        a, b = abs(a) + epsilon, abs(a) + epsilon
 
     return Interval(np.log(a), np.log(b))
 
@@ -127,10 +232,7 @@ def special_log(a, b):
 def log10(a, b):
     a, b = convert_to_max_integer(a=a, b=b)
     if a > 0:
-        a = epsilon
-
-    if b > 0:
-        b = epsilon
+        a, b = abs(a) + epsilon, abs(a) + epsilon
 
     try:
         ret = Interval(np.log10(a), np.log10(b))

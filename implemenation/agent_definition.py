@@ -1,10 +1,9 @@
-# =============================================================================
-# Agent Classes and Dummy Implementations
-# =============================================================================
 from override_arithmentic_opt import Interval
 import numpy as np
 
-import sys
+# =============================================================================
+# Agent Classes and Dummy Implementations
+# =============================================================================
 
 max_index = np.finfo(np.float32).max
 epsilon = 1e-9

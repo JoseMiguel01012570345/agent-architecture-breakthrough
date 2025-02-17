@@ -207,7 +207,7 @@ def sir_model(S0, I0, R0, days, beta, gamma, index=0, fake_beta=0, fake_gamma=0)
     return interval_solution
 
 
-def dataset_generator():
+def dataset_generator(epidemic_number):
     """
     Returns { "upper_bound": np.array , "lower_bound": np.array }
 
@@ -219,7 +219,7 @@ def dataset_generator():
     maximal_param = max_index
     generated_beta = 0
     generated_gramma = 0
-    for i in range(150):
+    for i in range(epidemic_number):
 
         # Initial conditions:
         S0 = random.randint(1, 10000)  # initial number of susceptible individuals
@@ -227,19 +227,6 @@ def dataset_generator():
         R0 = 0  # initial number of recovered individuals
         gamma = random.randrange(1, int(maximal_param)) / maximal_param
         beta = random.randrange(1, int(maximal_param)) / maximal_param
-
-        maximal_param = 3 * random.randint(1, int(maximal_param / 2))
-        generated_beta = random.randint(0, int(maximal_param))
-        generated_gramma = random.randint(0, int(maximal_param))
-
-        # print(
-        #     {
-        #         "gamma": gamma,
-        #         "beta": beta,
-        #         "generated_gramma": generated_gramma,
-        #         "generated_beta": generated_beta,
-        #     }
-        # )
 
         sir_dataset.append(
             {
@@ -254,57 +241,3 @@ def dataset_generator():
         )
 
     return sir_dataset
-
-
-# import numpy as np
-# from scipy.integrate import solve_ivp
-# import matplotlib.pyplot as plt
-
-# maximal_param = max_index
-# generated_beta = 0
-
-# gen_betas = []
-# for i in range(150):
-#     # Parámetros del modelo
-#     beta = random.randint(0, 10) / 1000  # Tasa de transmisión
-#     maximal_param = 3 * random.randint(1, int(maximal_param / 2))
-#     generated_beta = random.randint(0, int(maximal_param))
-
-#     gen_betas.append(abs(beta - generated_beta))
-#     # N = 1000  # Población total
-#     # I0 = 1  # Número inicial de infectados
-#     # S0 = N - I0  # Número inicial de susceptibles
-
-#     # # Ecuaciones del modelo SI
-#     # def modelo_SI(t, y):
-#     #     S, I = y
-#     #     dSdt = -beta * S * I
-#     #     dIdt = beta * S * I
-#     #     return [dSdt, dIdt]
-
-#     # # Condiciones iniciales
-#     # y0 = [S0, I0]
-
-#     # # Intervalo de tiempo
-#     # t_span = (0, 10)
-#     # t_eval = np.linspace(0, 10, 1000)
-
-#     # # Resolver el sistema de ecuaciones diferenciales
-#     # sol = solve_ivp(modelo_SI, t_span, y0, t_eval=t_eval)
-
-#     # # Graficar los resultados
-#     # plt.plot(sol.t, sol.y[0], label="Susceptibles (S)")
-#     print(
-#         {
-#             "beta": beta,
-#             "generated_beta": generated_beta,
-#         }
-#     )
-# plt.plot(range(150), gen_betas, label="Infectados (I)")
-# plt.xlabel("Generation")
-# plt.ylabel("Error")
-# plt.title("SI Model")
-# plt.legend()
-# plt.grid()
-# plt.savefig(f"./image/plt{i}2.jpg")
-# # plt.show()
