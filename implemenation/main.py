@@ -168,7 +168,13 @@ def watch_overflow(a):
     return a
 
 
-def show(current_output, epoch, time, finish_time=None, expected_data=[]):
+def show(
+    current_output,
+    epoch,
+    time,
+    finish_time=None,
+    expected_data=[Interval(0, 0), Interval(0, 0)],
+):
 
     show_finish_time = ""
     if finish_time is not None:
@@ -180,6 +186,7 @@ def show(current_output, epoch, time, finish_time=None, expected_data=[]):
         f"____________________________________________TIME:{time} seconds____>>> \n"
     )
     for index, variable in enumerate(current_output):
+
         file.write(f"Variable {index}:\n")
         file.write(
             f"lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n ___expected value____>>: \n expected_value_{index} lower_bound: {expected_data[index].lower} \n expected_value_{index} upper_bound: {expected_data[index].upper} \n \n {show_finish_time}"
