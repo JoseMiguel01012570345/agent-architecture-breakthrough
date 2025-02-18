@@ -189,8 +189,10 @@ def show(
 
         file.write(f"Variable {index}:\n")
         file.write(
-            f"lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n ___expected value____>>: \n expected_value_{index} lower_bound: {expected_data[index].lower} \n expected_value_{index} upper_bound: {expected_data[index].upper} \n \n {show_finish_time}"
+            f"lower_bound: {variable.lower} \n upper_bound: {variable.upper} \n ___expected value____>>: \n expected_value_{index} lower_bound: {expected_data[index].lower} \n expected_value_{index} upper_bound: {expected_data[index].upper} \n"
         )
+
+    print(f"{show_finish_time}")
 
 
 def normalize_agents(agents):
@@ -313,7 +315,6 @@ def main_process(dataset, max_iterations, epochs=1):
                     delta += Interval(lower=abs(delta.lower), upper=abs(delta.lower))
 
                 results.append(current_outputs)
-                # input()
                 iteration += 1
 
                 if delta.upper < convergence_threshold:
@@ -358,7 +359,7 @@ def main_process(dataset, max_iterations, epochs=1):
 if __name__ == "__main__":
     # Create a dummy dataset of (X, Y) pairs.
     # Here, X might be a number (or a vector) and Y is a list of target outputs.
-    dataset = compartimental_models.dataset_generator(epidemic_number=30)
+    dataset = compartimental_models.dataset_generator(epidemic_number=150)
     max_iterations = 5
 
-    main_process(dataset, max_iterations, epochs=10)
+    main_process(dataset, max_iterations, epochs=30)

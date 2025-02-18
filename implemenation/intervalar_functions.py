@@ -39,24 +39,24 @@ output_intervalar_functions_avaliable = [  # output agents must cover all of the
     #         interval_arcsin(check_overflow(y.lower), check_overflow(y.upper))
     #     ),
     # ),
-    (
-        lambda x: interval_tan(check_overflow(x.lower), check_overflow(x.upper)),
-        lambda y: Interval(
-            math.atan(check_overflow(y.lower)), math.atan(check_overflow(y.upper))
-        ),
-    ),
-    (
-        lambda x: (
-            Interval(1, 1) / x
-            if check_overflow(x.lower) > 0 or 0 > check_overflow(x.upper)
-            else Interval(max_index, max_index)
-        ),
-        lambda y: (
-            Interval(1, 1) / y
-            if y.lower > 0 or 0 > y.upper
-            else Interval(max_index, max_index)
-        ),
-    ),
+    # (
+    #     lambda x: interval_tan(check_overflow(x.lower), check_overflow(x.upper)),
+    #     lambda y: Interval(
+    #         math.atan(check_overflow(y.lower)), math.atan(check_overflow(y.upper))
+    #     ),
+    # ),
+    # (
+    #     lambda x: (
+    #         Interval(1, 1) / x
+    #         if check_overflow(x.lower) > 0 or 0 > check_overflow(x.upper)
+    #         else Interval(max_index, max_index)
+    #     ),
+    #     lambda y: (
+    #         Interval(1, 1) / y
+    #         if y.lower > 0 or 0 > y.upper
+    #         else Interval(max_index, max_index)
+    #     ),
+    # ),
     # (
     #     lambda x: interval_cos(check_overflow(x.lower), check_overflow(x.upper)),
     #     lambda y: (
