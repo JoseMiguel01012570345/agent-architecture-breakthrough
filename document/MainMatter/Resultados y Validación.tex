@@ -182,6 +182,15 @@
 
     \textbf{El entrenamiento:}
 
+    \textbf{ Definición de condicionamiento del sistema} \\
+    Se dice que el sistema esta bien condicionado si no existe overflow/underflow al calcular el vector de salida. \\
+
+
+    La definición anterior sugiere evitar el uso de funciones en los agentes que provoquen problemas numéricos frecuentes, ya que esto podría acumular errores en las estimaciones 
+    debido a la limitada precisión de los números de punto flotante. Reducir el truncamiento por overflow/underflow resulta en predicciones más precisas y en una mejor 
+    generalización de los intervalos durante el entrenamiento del sistema.
+
+
     El sistema iteró solo una época por los datos de entrenamiento con una constante de hasta 100 iteraciones por cada dato para devolver una salida, se consideraron
     un total de 150 epidemias y se aplicó la distancia euclicidiana como norma. El número total de iteraciones fue de 15000, consiguiéndose el siguiente cronograma de salidas.
 

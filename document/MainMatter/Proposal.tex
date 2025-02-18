@@ -80,14 +80,15 @@
             \item  $B \rightarrow A$, $B$ 'escucha' de $A$
         \end{itemize}
 
-        Si $A$ escucha de $P^n=[A_0^n,A_1^n,...,A_k^n]$ entonces las precondiciones de $A$ son $P=\lceil p_0 - \frac{1}{2} \rceil \lor \lceil p_1 - \frac{1}{2} \rceil \lor \dots \lor \lceil p_n - \frac{1}{2} \rceil$ donde: 
-        $p_i=A_k$. Las expresiones $A_0^n,A_1^n,A_k^n$ se refieren al valor de las ponderaciones de los arcos $A_0,A_1,\dots,A_n$ en la iteración $k$. Es preciso notar que $p_i \in [0,1]$ \\
+        Si $A$ escucha de $P^n=[A_0^n,A_1^n,...,A_k^n]$ entonces las precondiciones de $A$ son $P=\lceil p_0 - \frac{1}{2} \rceil \lor \lceil p_1 - \frac{1}{2} \rceil \lor \dots \lor \lceil p_n - \frac{1}{2} \rceil$ donde 
+         $p_i=A_k$ y $p_i \in [0,1]$. Las expresiones $A_0^n,A_1^n,A_k^n$ se refieren al valor de las ponderaciones de los arcos $A_0,A_1,\dots,A_n$ en la iteración $k$. \\
 
         Como última observación se dice que si en un instante $k$ no hay arcos entre agentes, entonces hemos convergido a un resultado final.
 
     \subsection*{Arquitectura de Agentes Cooperativos}
 
-        Antes de referirnos a los detalles de la arquitectura es necesario precisar que la estrategia propuesta se basa en una red de agentes donde cada uno tiene una funcionalidad específica y se entrena para mejorar sus resultados. Notar que este entrenamiento es supervisado. \\
+        Antes de referirnos a los detalles de la arquitectura es necesario precisar que la estrategia propuesta se basa en una red de agentes donde cada uno tiene una funcionalidad 
+        específica y se entrena para mejorar sus resultados. Notar que este entrenamiento es supervisado. \\
 
         La arquitecta está divida en cuatro agentes: los agentes de entrada, los agentes de salida, agente coordinador de acciones y el agente corrector de acciones. Lo siguiente asume que la función tiene la forma $R^n \xrightarrow{f} R^m$. \\
 
@@ -96,7 +97,8 @@
 
         Agentes de salida: Existe un agente de salida por cada parámetro de salida estos agentes son los responsables de escuchar de los agentes de entrada y devolver la salida.
         Un punto importante es que existen tantos agentes de salida como parámetros de salida se definen. Al igual que los agentes de entrada estos implementan una función $FoT$ 
-        que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que esté la respuesta. Estos agentes se determinan al inicio del entrenamiento.
+        que recibe la tupla $(P,X)$ y devuelve un valor $Y$ que es donde se espera que esté la respuesta. Estos agentes se determinan al inicio del entrenamiento y se debe asegurar que su 
+        función característica cubra todo el codominio.
 
         Un punto importante a destacar es que la función $F$ de ambos agentes, es su función característica, es decir, una función que solo implementan ellos y además se exige que sea inversible.
 
