@@ -196,7 +196,7 @@
     de entrada y salida. El agente coordinador siempre encuentra una solución correcta dada la entrada y salida de la red de las infinitas posibles, por tanto se 
     puede decir que este agente converge a la solución correcta. En lo adelante se asume que el agente coordinador converge al mínimo global: \\
 
-    El problema de encontrar $F:X \rightarrow Y$ se ha convertido en $\underset{G}{\min}(||F(X)-Y||)$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
+    El problema de encontrar $F:X \rightarrow Y$ se ha convertido en: $$\underset{G}{\min}(\frac{1}{2} \sum_{i=1}^{|Y|} (y(t_i, \theta) - \tilde{y}_i)^T (y(t_i,    \theta) - \tilde{y}_i))= \frac{1}{2} \sum_{i=1}^{|Y|} (y(t_i, \theta) - \tilde{y}_i)^2$$ donde $G$ es un grafo en el que sus vértices son los agentes de entrada y salida. Si 
     este el agente corrector converge a $G$  entonces la red converge a $Y$ dado $X$.
 
 

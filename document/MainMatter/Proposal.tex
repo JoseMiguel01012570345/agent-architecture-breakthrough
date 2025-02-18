@@ -139,19 +139,20 @@
         Como se quiere que la red resuelva el problema en la menor cantidad de interacciones, comenzamos desde la iteración 1 a buscar qué arcos habrían dado la
         respuesta correcta. Por cada agente de salida buscamos qué o cuales agentes de entrada darían la respuesta correcta.  \\
 
-        Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(||F(X)-Y||)$. Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
-        entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[||r-r'||,||r-r'||]$. Tenemos entonces dos posibles casos: \\
+        Se propone encontrar un grafo $G$ tal que $\underset{G}{\min}(\frac{1}{2} \sum_{i=1}^{|Y|} (y(t_i, \theta) - \tilde{y}_i)^T (y(t_i,    \theta) - \tilde{y}_i))= \frac{1}{2} \sum_{i=1}^{|Y|} (y(t_i, \theta) - \tilde{y}_i)^2$.
+         Como se conoce la respuesta correcta $Y$, entonces la componente $y_i \in Y$ debería ser el valor de salida del agente de salida $i$-ésimo, para determinar cuáles debieron ser los valores de entrada, hacemos $r=f^{-1}(y_i)$ y $r'=T(X,P)=p_0X_0 + p_1X_1 +...+p_kX_k$ como se conocen los valores de $X$ y de $P$
+        entonces el agente corrector debe buscar en la red qué agentes minimizarían $T=[(r-r')^2,(r-r')^2]$. Tenemos entonces dos posibles casos: \\
 
-        Caso 1: $[||r-r'||,||r-r'||] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes
-        que no forman parte de la salida. Aquí basta con conectar de forma sucesiva los agentes $X_{k+j}$ con $j=1,2,..n$ hasta que $[||r-r'||,||r-r'||] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ si la relación es de igualdad, hemos encontrado los arcos,
+        Caso 1: $[(r-r')^2,(r-r')^2] > \sum_{i=k+1}^{n} a_iX_i$ siendo $a_i=1$, $n$ el número de agentes de salida más agentes de entrada y el intervalo de $[k+1,n]$ los agentes
+        que no forman parte de la salida. Aquí basta con conectar de forma sucesiva los agentes $X_{k+j}$ con $j=1,2,..n$ hasta que $[(r-r')^2,(r-r')^2] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ si la relación es de igualdad, hemos encontrado los arcos,
          si es menor estricto, nos lleva al caso 2.\\
 
-        Caso 2: Si $[||r-r'||,||r-r'||] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ siendo $a_i=1$, entonces hacemos uso de la regla del la ecuación lineal y solo despejamos uno de los agentes para encontrar el peso que iguala la ecuación
-        es decir: $D(a_{k+j}) \cap \frac{[||r-r'||,||r-r'||] - \sum_{k+1}^{k+j-1} X_i}{|X_{k+j}|}$.\\
+        Caso 2: Si $[(r-r')^2,(r-r')^2] \leqslant \sum_{i=k+1}^{k+j} a_iX_i$ siendo $a_i=1$, entonces hacemos uso de la regla del la ecuación lineal y solo despejamos uno de los agentes para encontrar el peso que iguala la ecuación
+        es decir: $D(a_{k+j}) \cap \frac{[(r-r')^2,(r-r')^2] - \sum_{k+1}^{k+j-1} X_i}{|X_{k+j}|}$.\\
 
         Una vez concluidos los hallazgos en la primera iteración, esta es enviada al agente coordinador, para que se ajuste dada la tupla $(X,Y)$ siendo
         $X$ los valores de entrada a la red y $Y$ los arcos de salida, concluido esto, el agente corrector pasa a la iteración 2 y comienza nuevamente la búsqueda del arco ideal. Una vez concluido este proceso
-        el agente corrector hace el mismo proceso, pero esta vez asumiendo que la salida de la primera interacción es la entrada de la segunda iteración, es decir $\underset{X}{\min}([||r-r'||,||r-r'||])$ donde $X$ es el vector estado de la red luego de minimizar $[||r-r'||,||r-r'||]$.
+        el agente corrector hace el mismo proceso, pero esta vez asumiendo que la salida de la primera interacción es la entrada de la segunda iteración, es decir $\underset{X}{\min}([(r-r')^2,(r-r')^2])$ donde $X$ es el vector estado de la red luego de minimizar $[(r-r')^2,(r-r')^2]$.
         De igual forma la red continua con la siguiente iteración hasta terminar con la cola de iteraciones de la generación. Luego de pasar por todo este proceso la red comienza nuevamente con la siguiente generación de datos. \\
 
         Se itera dos veces sobre la pila de iteraciones porque es necesario entrenar el agente coordinador y para ello se requiere la mayor cantidad de datos posibles. Pues el primer entrenamiento se hace para rectificar los arcos erróneos, y el siguiente para aprender la respuesta correcta.
